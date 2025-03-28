@@ -1,0 +1,68 @@
+/* src/css/index.css */
+
+/* Общие стили */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Светлая тема */
+body.light {
+    --bg-color: #f9f9f9;
+    --text-color: #333;
+    --card-bg: #fff;
+    --navbar-bg: #fff;
+    --navbar-border: #eee;
+
+    /* Переменные для Sidebar */
+    --sidebar-bg: #fff;
+    --sidebar-text: #555;
+    --sidebar-border: #eee;
+    --sidebar-hover-bg: #f9f9f9;
+    --sidebar-active-bg: #e6f0ff;
+    --sidebar-active-color: #7367f0;
+    --sidebar-active-border: #7367f0;
+
+    /* Новая переменная для акцента (например, для preloader) */
+    --accent-color: #7367f0; /* можно выбрать другой акцентный цвет */
+}
+
+/* Тёмная тема */
+body.dark {
+    --bg-color: #121212;
+    --text-color: #f0f0f0;
+    --card-bg: #1e1e1e;
+    --navbar-bg: #1e1e1e;
+    --navbar-border: #333;
+
+    /* Переменные для Sidebar в тёмном режиме */
+    --sidebar-bg: #1e1e1e;
+    --sidebar-text: #f0f0f0;
+    --sidebar-border: #333;
+    --sidebar-hover-bg: #2b2b2b;
+    --sidebar-active-bg: #333;
+    --sidebar-active-color: #ffd700;
+    --sidebar-active-border: #ffd700;
+
+    /* Переменная акцента в тёмной теме */
+    --accent-color: #ffd700; /* например, яркий жёлтый для контраста */
+    color: var(--text-color); /* Все текстовые элементы по умолчанию будут белыми */
+
+}
+
+/* Применяем переменные (пример для Dashboard, Navbar, и т.д.) */
+.dashboard-container {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.navbar {
+    background-color: var(--navbar-bg);
+    border-bottom: 1px solid var(--navbar-border);
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    color: var(--text-color);
+}

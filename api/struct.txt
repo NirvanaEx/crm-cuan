@@ -1,0 +1,20 @@
+project/
+└── api/
+    ├── controllers/
+    │   ├── userController.js
+    │   └── authController.js
+    ├── models/
+    │   ├── user.js
+    │   └── index.js
+    ├── routes/
+    │   ├── userRoutes.js
+    │   └── authRoutes.js
+    ├── middlewares/
+    │   ├── authMiddleware.js
+    │   └── errorHandler.js
+    ├── services/
+    │   ├── userService.js
+    │   └── authService.js
+    ├── config/
+    │   └── db.js
+    └── index.js

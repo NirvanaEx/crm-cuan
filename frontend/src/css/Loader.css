@@ -1,0 +1,96 @@
+/* src/css/Loader.css */
+
+/* Оверлей, который занимает всю область родительского контейнера */
+/* Оверлей, который занимает всю область родительского контейнера */
+.loader-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff; /* сплошной белый фон */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* Для тёмной темы можно добавить: */
+body.dark .loader-overlay {
+    background: #000; /* сплошной чёрный фон для тёмной темы */
+}
+
+/* Контейнер лоадера (центрирование) */
+.loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Обёртка для кольца */
+.loader-ring {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+/* Каждый сегмент кольца */
+.loader-segment {
+    position: absolute;
+    width: 8px;
+    height: 20px;
+    background-color: #555;
+    top: 0;
+    left: 36px;
+    border-radius: 4px;
+    transform-origin: center 40px;
+}
+
+/* Расставляем 12 сегментов по кругу */
+.loader-segment:nth-child(1)  { transform: rotate(0deg); }
+.loader-segment:nth-child(2)  { transform: rotate(30deg); }
+.loader-segment:nth-child(3)  { transform: rotate(60deg); }
+.loader-segment:nth-child(4)  { transform: rotate(90deg); }
+.loader-segment:nth-child(5)  { transform: rotate(120deg); }
+.loader-segment:nth-child(6)  { transform: rotate(150deg); }
+.loader-segment:nth-child(7)  { transform: rotate(180deg); }
+.loader-segment:nth-child(8)  { transform: rotate(210deg); }
+.loader-segment:nth-child(9)  { transform: rotate(240deg); }
+.loader-segment:nth-child(10) { transform: rotate(270deg); }
+.loader-segment:nth-child(11) { transform: rotate(300deg); }
+.loader-segment:nth-child(12) { transform: rotate(330deg); }
+
+/* Анимация для бегущей подсветки */
+@keyframes blink {
+    0%, 100% {
+        background-color: #555;
+    }
+    25% {
+        background-color: #fff;
+    }
+}
+
+.loader-segment {
+    animation: blink 1.2s infinite linear;
+}
+
+.loader-segment:nth-child(1)  { animation-delay: 0s; }
+.loader-segment:nth-child(2)  { animation-delay: 0.1s; }
+.loader-segment:nth-child(3)  { animation-delay: 0.2s; }
+.loader-segment:nth-child(4)  { animation-delay: 0.3s; }
+.loader-segment:nth-child(5)  { animation-delay: 0.4s; }
+.loader-segment:nth-child(6)  { animation-delay: 0.5s; }
+.loader-segment:nth-child(7)  { animation-delay: 0.6s; }
+.loader-segment:nth-child(8)  { animation-delay: 0.7s; }
+.loader-segment:nth-child(9)  { animation-delay: 0.8s; }
+.loader-segment:nth-child(10) { animation-delay: 0.9s; }
+.loader-segment:nth-child(11) { animation-delay: 1.0s; }
+.loader-segment:nth-child(12) { animation-delay: 1.1s; }
+
+/* Текст под лоадером */
+.loader-text {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--text-color, #333);
+}

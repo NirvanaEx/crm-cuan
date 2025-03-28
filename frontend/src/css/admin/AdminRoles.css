@@ -1,0 +1,16 @@
+.admin-roles-container {
+    padding: 20px;
+}
+
+.admin-roles-actions {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.admin-roles-search {
+    padding: 8px;
+    font-size: 16px;
+    margin-right: 10px;
+    width: 300px;
+}

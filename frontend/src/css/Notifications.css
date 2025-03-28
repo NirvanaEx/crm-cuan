@@ -1,0 +1,218 @@
+/* src/css/Notifications.css */
+
+/* Для браузеров на основе WebKit */
+.notifications-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.notifications-body::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Цвет дорожки */
+    border-radius: 4px;
+}
+
+.notifications-body::-webkit-scrollbar-thumb {
+    background: #888; /* Цвет ползунка */
+    border-radius: 4px;
+}
+
+.notifications-body::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Цвет при наведении */
+}
+
+/* Для Firefox */
+.notifications-body {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+}
+
+
+.notifications-wrapper {
+    position: relative;
+}
+
+/* Иконка колокольчика */
+.notifications-icon {
+    font-size: 20px;
+    position: relative;
+    cursor: pointer;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background-color: #ff3b3b;
+    color: #fff;
+    font-size: 10px;
+    border-radius: 50%;
+    padding: 2px 5px;
+}
+
+/* Выпадающее окно уведомлений */
+.notifications-dropdown {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    width: 480px;
+    background: var(--card-bg);
+    border: 1px solid var(--navbar-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Тёмная тема для окна уведомлений */
+body.dark .notifications-dropdown {
+    background: var(--card-bg);
+    border: 1px solid var(--navbar-border);
+}
+
+/* Заголовок уведомлений */
+.notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid var(--navbar-border);
+    background-color: var(--navbar-bg);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.mark-all-read-icon {
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+/* Тело уведомлений */
+.notifications-body {
+    max-height: 400px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Элемент уведомления */
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--navbar-border);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.notification-item:hover {
+    background-color: var(--sidebar-hover-bg);
+}
+
+/* Аватар уведомления */
+.notification-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+/* Тексты уведомления */
+.notification-texts {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.notification-sender {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.notification-message {
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.notification-time {
+    font-size: 12px;
+    color: #999;
+}
+
+/* Стили для уведомлений */
+/* Для непрочитанных уведомлений задаём светлый фон */
+.notification-item.unread {
+    background-color: #eaf4ff; /* мягкий голубой для непрочитанных */
+    color: #333;
+}
+
+
+/* Для прочитанных уведомлений – более тёмный фон */
+.notification-item.read {
+    background-color: #f7f7f7; /* почти белый для прочитанных */
+    color: #666;
+}
+/* Тёмная тема для уведомлений */
+body.dark .notification-item.unread {
+    background-color: #444444; /* средне-тёмный для непрочитанных */
+    color: #f0f0f0;
+}
+body.dark .notification-item.read {
+    background-color: #333333; /* чуть темнее для прочитанных */
+    color: #cccccc;
+}
+
+/* Последний элемент без нижней границы */
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+/* Футер уведомлений: пагинация и переключатель развёрнутого вида */
+.notifications-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    border-top: 1px solid var(--navbar-border);
+    background-color: var(--navbar-bg);
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+/* Пагинация (появляется только при развёрнутом виде и если уведомлений больше pageSize) */
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.pagination button {
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    border: 1px solid var(--navbar-border);
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    transition: background-color 0.2s ease;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: var(--sidebar-hover-bg);
+}
+
+/* Переключатель развёрнутого вида - теперь иконка */
+.toggle-expand {
+    font-size: 18px;
+    color: var(--accent-color);
+    cursor: pointer;
+    margin-top: 5px;
+}

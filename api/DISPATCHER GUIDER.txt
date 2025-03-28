@@ -1,0 +1,42 @@
+language: id (AUTO INCREMENT), code (varchar UNIQUE), name, date_creation;
+user: id (AUTO INCREMENT), login, password, date_creation;
+user_info: id (AUTO INCREMENT), user_id, surname, name, patronym, phone, date_creation;
+user_token: id (AUTO INCREMENT), user_id, token, date_experied, date_creation, token_status (Enum: active, revoked);
+user_session: id (AUTO INCREMENT), user_token_id, device (text), ip_address, date_last_active, date_creation;
+user_status_history: id (AUTO INCREMENT), user_id, status (ENUM: active, banned, deleted), date_creation;
+
+role: id (AUTO INCREMENT), name, date_creation, data_status (Enum: active, deleted);
+role_translation: id (AUTO INCREMENT), role_id, language_id, description, date_creation;
+
+access: id (AUTO INCREMENT), name, date_creation, data_status (Enum: active, deleted);
+access_translation: id (AUTO INCREMENT), access_id, language_id, description, date_creation;
+
+role_access: id (AUTO INCREMENT), role_id, access_id, date_creation;
+users_role: id (AUTO INCREMENT), user_id, role_id, date_creation;
+
+file: id (AUTO INCREMENT), file_path, date_creation;
+question: id (AUTO INCREMENT), num (int NULL), date_creation, data_status (ENUM: active, deleted);
+question_history: id (AUTO INCREMENT), question_id, date_creation;
+question_history_translation: id (AUTO INCREMENT), question_history_id, language_id, name (text), date_creation;
+
+
+
+category: id (AUTO INCREMENT), date_creation;
+category_translation: id (AUTO INCREMENT), category_id, language_id, name, date_creation;
+
+subcategory: id (AUTO INCREMENT), category_id, date_creation;
+subcategory_translation: id (AUTO INCREMENT), subcategory_id, language_id, name, date_creation;
+
+question_subcategory: id (AUTO INCREMENT), question_id, subcategory_id, date_creation;
+
+message: id (AUTO INCREMENT), message_text, date_creation;
+message_file: id (AUTO INCREMENT), file_id, message_id, date_creation;
+message_send: id (AUTO INCREMENT), user_id_sender, user_id_reciver, message_id, is_read (true,false), date_creation;
+
+log: id (AUTO INCREMENT), user_id, action_name, date_creation;
+
+Языки: en, ru, uz
+Роли:
+superadmin (может создавать админов и видеть всех пользователей (даже удаленных)), логи, роли и их доступ и т.п
+admin (может создавать пользователей и менеджеров)
+user (интерфейс пользователя)

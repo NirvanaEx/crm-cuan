@@ -1,0 +1,129 @@
+/* AdminUsers.css */
+
+/* Основной контейнер страницы пользователей */
+.admin-users {
+    padding: 20px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: Arial, sans-serif;
+}
+
+/* Заголовок страницы */
+.admin-users h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.admin-users-container {
+    padding: 20px;
+}
+
+.admin-users-container h1 {
+    margin-bottom: 20px;
+}
+
+/* Блок с поиском и кнопкой */
+.admin-users-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+
+/* Стили для поля поиска */
+.search-container input,
+.admin-users .search-container input {
+    width: 300px;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid var(--sidebar-border);
+    border-radius: 4px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+/* Стили для формы добавления и редактирования пользователя */
+.user-form {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.user-form input {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid var(--sidebar-border);
+    border-radius: 4px;
+    flex: 1 1 200px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+.user-form button {
+    padding: 10px 20px;
+    font-size: 14px;
+    background-color: var(--accent-color);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.user-form button:hover {
+    background-color: darken(var(--accent-color), 10%);
+}
+
+/* Дополнительные стили для формы редактирования */
+.edit-form {
+    margin-top: 20px;
+    border-top: 1px solid var(--sidebar-border);
+    padding-top: 20px;
+}
+
+/* Стили для таблицы (если UniversalTable не имеет собственных стилей) */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid var(--sidebar-border);
+    text-align: left;
+}
+
+th {
+    background-color: var(--navbar-bg);
+}
+
+/* Постраничная навигация */
+.pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination button {
+    padding: 8px 12px;
+    margin: 0 5px;
+    border: 1px solid var(--sidebar-border);
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.pagination button:hover {
+    background-color: var(--sidebar-hover-bg);
+}
+
+.pagination button.active {
+    background-color: var(--accent-color);
+    color: #fff;
+    border-color: var(--accent-color);
+}

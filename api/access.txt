@@ -1,0 +1,6 @@
+create_user
+create_user
+read_user
+update_user
+delete_user
+view_user_status

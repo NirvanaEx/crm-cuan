@@ -1,0 +1,17 @@
+.admin-access-container {
+    padding: 20px;
+  }
+  
+  .admin-access-actions {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .admin-access-search {
+    padding: 8px;
+    font-size: 16px;
+    margin-right: 10px;
+    width: 300px;
+  }
+  
