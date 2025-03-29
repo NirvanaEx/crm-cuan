@@ -15,12 +15,15 @@ const authRoutes = require('./routes/authRoutes');
 const roleRoutes = require('./routes/roleRoutes');
 const accessRoutes = require('./routes/accessRoutes');
 const roleAccessRoutes = require('./routes/roleAccessRoutes');
+const sessionRoutes = require('./routes/sessionRoutes');
+
 
 app.use('/api/users', authMiddleware, userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/roles', authMiddleware, roleRoutes);
 app.use('/api/access', authMiddleware, accessRoutes);
 app.use('/api/role-access', authMiddleware, roleAccessRoutes);
+app.use('/api/sessions', authMiddleware, sessionRoutes);
 
 const errorHandler = require('./middlewares/errorHandler');
 app.use(errorHandler);

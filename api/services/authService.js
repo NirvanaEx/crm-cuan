@@ -2,6 +2,7 @@
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const sessionService = require('./sessionService');
 
 exports.getUserFromToken = async (token) => {
     // Проверяем наличие активного токена
@@ -69,8 +70,7 @@ exports.getUserFromToken = async (token) => {
     return userData;
 };
 
-exports.login = async (login, password) => {
-    // Получаем пользователя по логину
+exports.login = async (login, password, device, ipAddress) => {
     const [rows] = await db.execute(
         'SELECT * FROM `user` WHERE login = ?',
         [login]
@@ -79,22 +79,18 @@ exports.login = async (login, password) => {
         return null;
     }
     const user = rows[0];
-
-    // Сравниваем введённый пароль с хешем из базы
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
         return null;
     }
-
-    // Генерируем токен
     const token = crypto.randomBytes(32).toString('hex');
-    const dateExpired = new Date(Date.now() + 3600 * 1000); // 1 час действия токена
-
-    // Сохраняем токен в базе
-    await db.execute(
+    const dateExpired = new Date(Date.now() + 3600 * 1000);
+    const [result] = await db.execute(
         'INSERT INTO user_token (user_id, token, date_expired, token_status) VALUES (?, ?, ?, ?)',
         [user.id, token, dateExpired, 'active']
     );
+    // Создаётся запись о сессии, связывающая токен и параметры устройства
+    await sessionService.createSession(result.insertId, device, ipAddress);
     return token;
 };
 
