@@ -1,0 +1,87 @@
+.admin-session-page {
+    padding: 20px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
+  
+  .admin-session-page h2 {
+    margin-bottom: 20px;
+  }
+  
+  /* Форма поиска */
+  .search-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  /* Основная строка поиска */
+  .search-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .search-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--sidebar-border);
+    border-radius: 4px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+  }
+  
+  .search-select {
+    padding: 8px;
+    border: 1px solid var(--sidebar-border);
+    border-radius: 4px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+  }
+  
+  .date-toggle-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .date-toggle-button:hover {
+    background-color: var(--hover-bg-color);
+  }
+  
+  /* Блок с датами */
+  .date-filter {
+    display: flex;
+    gap: 15px;
+    margin-top: 5px;
+  }
+  
+  .date-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .date-filter-row label {
+    min-width: 20px;
+  }
+  
+  .date-picker-input {
+    width: 120px;
+    padding: 6px;
+    border: 1px solid var(--sidebar-border);
+    border-radius: 4px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+  }
+  
+  /* UniversalTable стили остаются без изменений */
+  

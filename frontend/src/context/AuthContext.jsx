@@ -8,8 +8,8 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
     const [roles, setRoles] = useState([]);
+    const [permissions, setPermissions] = useState([]);
 
-    // При загрузке приложения проверяем, есть ли токен и пытаемся получить данные пользователя
     useEffect(() => {
         const token = localStorage.getItem('authToken');
         if (token) {
@@ -20,16 +20,17 @@ export const AuthProvider = ({ children }) => {
     const fetchUserData = async () => {
         try {
             const response = await api.get('/auth/me');
-            // Если roles не переданы отдельно, берем их из user.roles
             const userData = response.data.user;
             setUser(userData);
-            setRoles(userData.roles || []); // устанавливаем roles из user.roles, или пустой массив
+            setRoles(userData.roles || []);
+            setPermissions(userData.permissions || []);
             setIsAuthenticated(true);
         } catch (error) {
             console.error('Ошибка получения данных пользователя:', error);
             setIsAuthenticated(false);
             setUser(null);
             setRoles([]);
+            setPermissions([]);
         }
     };
 
@@ -51,6 +52,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.removeItem('authToken');
             setUser(null);
             setRoles([]);
+            setPermissions([]);
             setIsAuthenticated(false);
         } catch (error) {
             console.error('Ошибка при выходе:', error);
@@ -59,7 +61,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, user, roles, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, user, roles, permissions, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
