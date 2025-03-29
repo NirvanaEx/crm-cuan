@@ -13,7 +13,6 @@ module.exports = async (req, res, next) => {
     try {
         // Получаем базовую информацию о пользователе
         const userData = await authService.getUserFromToken(token);
-        console.log('UserData из getUserFromToken:', userData);
 
         if (!userData) {
             return res.status(401).json({ error: 'Неверный или просроченный токен' });
