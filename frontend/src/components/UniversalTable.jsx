@@ -8,6 +8,7 @@ const UniversalTable = ({
                             itemsPerPage = 5,
                             onDelete,
                             onEdit,
+                            onRowClick,
                             currentPage: propCurrentPage,
                             onPageChange
                         }) => {
@@ -58,33 +59,39 @@ const UniversalTable = ({
                     </tr>
                     </thead>
                     <tbody>
-                    {currentData.length ? (
-                        currentData.map((row, idx) => (
-                            <tr key={idx}>
+                        {currentData.length ? (
+                            currentData.map((row, idx) => (
+                            <tr key={idx} onClick={() => onRowClick && onRowClick(row)}>
                                 {(onEdit || onDelete) && (
-                                    <td>
-                                        {onEdit && (
-                                            <AiOutlineEdit className="action-icon" onClick={() => onEdit(row)} />
-                                        )}
-                                        {onDelete && (
-                                            <AiOutlineDelete className="action-icon" onClick={() => onDelete(row)} />
-                                        )}
-                                    </td>
+                                <td onClick={(e) => e.stopPropagation()}>
+                                    {onEdit && (
+                                    <AiOutlineEdit
+                                        className="action-icon"
+                                        onClick={() => onEdit(row)}
+                                    />
+                                    )}
+                                    {onDelete && (
+                                    <AiOutlineDelete
+                                        className="action-icon"
+                                        onClick={() => onDelete(row)}
+                                    />
+                                    )}
+                                </td>
                                 )}
                                 {columns.map(col => (
-                                    <td key={col.key} style={{ width: col.width || 'auto' }}>
-                                        {col.render ? col.render(row[col.key], row) : row[col.key]}
-                                    </td>
+                                <td key={col.key} style={{ width: col.width || 'auto' }}>
+                                    {col.render ? col.render(row[col.key], row) : row[col.key]}
+                                </td>
                                 ))}
                             </tr>
-                        ))
-                    ) : (
-                        <tr>
+                            ))
+                        ) : (
+                            <tr>
                             <td colSpan={totalColumns} style={{ textAlign: 'center', padding: '20px' }}>
                                 Нет данных
                             </td>
-                        </tr>
-                    )}
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>

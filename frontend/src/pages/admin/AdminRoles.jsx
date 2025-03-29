@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert } from '@mui/material';
+import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import UniversalTable from '../../components/UniversalTable';
-import RoleAccessModal from '../../components/RoleAccessModal'; // Предполагается, что этот компонент создан отдельно
+import RoleAccessModal from '../../components/RoleAccessModal';
 import api from '../../services/api';
 import '../../css/admin/AdminRoles.css';
 
@@ -100,35 +101,47 @@ export default function AdminRoles() {
   };
   const handleCloseEdit = () => setOpenEdit(false);
 
-  // Обработка клика по строке таблицы: открывается модальное окно для управления access роли
+  // При клике по строке таблицы открывается модальное окно для управления доступами роли
   const handleRowClick = (row) => {
     setRoleForAccess(row);
     setOpenRoleAccess(true);
   };
 
   const columns = [
-    { key: 'id', label: 'ID', width: '10%' },
-    { key: 'name', label: 'Название роли', width: '40%' },
-    { key: 'date_creation', label: 'Дата создания', width: '30%' },
     {
       key: 'actions',
-      label: 'Действия',
-      width: '20%',
+      label: '',
+      width: '5%',
       render: (value, row) => (
-        <div>
-          <Button variant="outlined" onClick={() => handleOpenEdit(row)} style={{ marginRight: '5px' }}>
-            Редактировать
-          </Button>
-          <Button variant="outlined" color="error" onClick={() => handleDeleteRole(row)}>
-            Удалить
-          </Button>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <AiOutlineEdit
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenEdit(row);
+            }}
+            style={{ marginRight: '5px', cursor: 'pointer' }}
+            size={20}
+          />
+          <AiOutlineDelete
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteRole(row);
+            }}
+            style={{ cursor: 'pointer' }}
+            size={20}
+          />
         </div>
       )
-    }
+    },
+    { key: 'id', label: 'ID', width: '5%' },
+    { key: 'name', label: 'Название роли', width: '50%' },
+    { key: 'date_creation', label: 'Дата создания', width: '40%' }
   ];
 
   const filteredRoles = roles.filter(role =>
-    Object.values(role).some(val => String(val).toLowerCase().includes(search.toLowerCase()))
+    Object.values(role).some(val =>
+      String(val).toLowerCase().includes(search.toLowerCase())
+    )
   );
 
   return (
@@ -150,20 +163,18 @@ export default function AdminRoles() {
         columns={columns}
         data={filteredRoles}
         itemsPerPage={5}
-        onRowClick={handleRowClick}  // При клике по строке вызывается handleRowClick
+        onRowClick={handleRowClick}
       />
 
-      {/* Модальное окно для управления доступами выбранной роли */}
       {roleForAccess && (
         <RoleAccessModal
           open={openRoleAccess}
           role={roleForAccess}
           onClose={() => setOpenRoleAccess(false)}
-          onUpdate={fetchRoles} // При необходимости можно обновлять список ролей
+          onUpdate={fetchRoles}
         />
       )}
 
-      {/* Диалог добавления роли */}
       <Dialog open={openAdd} onClose={handleCloseAdd} fullWidth maxWidth="sm">
         <DialogTitle>Добавить роль</DialogTitle>
         <DialogContent>
@@ -184,7 +195,6 @@ export default function AdminRoles() {
         </DialogActions>
       </Dialog>
 
-      {/* Диалог редактирования роли */}
       <Dialog open={openEdit} onClose={handleCloseEdit} fullWidth maxWidth="sm">
         <DialogTitle>Редактировать роль</DialogTitle>
         <DialogContent>
@@ -205,7 +215,12 @@ export default function AdminRoles() {
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
         <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
