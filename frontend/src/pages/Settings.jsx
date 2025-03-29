@@ -6,8 +6,15 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 import '../css/Settings.css';
 import api from '../services/api';
+
+// Компонент Alert для Snackbar
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const Settings = () => {
   const [user, setUser] = useState(null);
@@ -20,6 +27,11 @@ const Settings = () => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
+
+  // Состояния для Snackbar
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -50,46 +62,57 @@ const Settings = () => {
     }));
   };
 
+  // Отправка данных профиля в формате JSON (аватар можно обработать отдельно)
   const handleSave = async () => {
     try {
-      const formData = new FormData();
-      if (avatarFile) {
-        formData.append('avatar', avatarFile);
-      }
-      formData.append('login', user.login || '');
-      formData.append('surname', user.surname || '');
-      formData.append('name', user.name || '');
-      formData.append('patronym', user.patronym || '');
-      formData.append('phone', user.phone || '');
-      await api.post('/users/update-profile', formData);
-      alert('Данные сохранены (пример).');
+      const profileData = {
+        surname: user.surname || '',
+        name: user.name || '',
+        patronym: user.patronym || '',
+        phone: user.phone || ''
+      };
+      await api.post('/profile/update-profile', profileData);
+      setSnackbarMessage('Данные сохранены');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
     } catch (err) {
       console.error(err);
-      alert('Ошибка при сохранении данных.');
+      setSnackbarMessage('Ошибка при сохранении данных');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     }
   };
 
   const handlePasswordSave = async () => {
     if (newPassword !== confirmNewPassword) {
-      alert('Новый пароль и подтверждение не совпадают');
+      setSnackbarMessage('Новый пароль и подтверждение не совпадают');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
       return;
     }
     try {
-      // Отправка запроса на смену пароля
-      await api.post('/users/change-password', {
+      await api.post('/profile/change-password', {
         oldPassword,
         newPassword,
       });
-      alert('Пароль успешно изменён');
+      setSnackbarMessage('Пароль успешно изменён');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
       setIsPasswordDialogOpen(false);
-      // Можно сбросить поля формы смены пароля
       setOldPassword('');
       setNewPassword('');
       setConfirmNewPassword('');
     } catch (err) {
       console.error(err);
-      alert('Ошибка при изменении пароля.');
+      setSnackbarMessage('Ошибка при изменении пароля');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setSnackbarOpen(false);
   };
 
   if (loading) {
@@ -238,6 +261,18 @@ const Settings = () => {
           <Button onClick={handlePasswordSave}>Сохранить</Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar для отображения сообщений, справа сверху */}
+      <Snackbar 
+        open={snackbarOpen} 
+        autoHideDuration={3000} 
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
