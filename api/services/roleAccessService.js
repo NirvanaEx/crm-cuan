@@ -2,10 +2,10 @@ const db = require('../config/db');
 
 exports.getAccessForRole = async (roleId) => {
     const [rows] = await db.execute(
-        `SELECT a.id, a.name, a.date_creation
-     FROM role_access ra
-     JOIN access a ON ra.access_id = a.id
-     WHERE ra.role_id = ?`,
+        `SELECT a.id AS access_id, a.name, a.date_creation
+           FROM role_access ra
+           JOIN access a ON ra.access_id = a.id
+          WHERE ra.role_id = ?`,
         [roleId]
     );
     return rows;

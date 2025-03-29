@@ -17,8 +17,8 @@ router.get('/:id', checkAccess('read_user'), userController.getUserById);
 // Обновление пользователя: базовое разрешение 'update_user' и тонкая настройка 'canUpdateUser'
 router.put('/:id', checkAccess('update_user', 'canUpdateUser'), userController.updateUser);
 
-// Обновление статуса пользователя: базовое разрешение 'view_user_status' и тонкая настройка 'canUpdateStatus'
-router.put('/:id/status', checkAccess('view_user_status', 'canUpdateStatus'), userController.updateUserStatus);
+// Обновление статуса пользователя: базовое разрешение 'read_user_status' и тонкая настройка 'canUpdateStatus'
+router.put('/:id/status', checkAccess('read_user_status', 'canUpdateStatus'), userController.updateUserStatus);
 
 // Удаление пользователя: базовое разрешение 'delete_user' и тонкая настройка 'canDeleteUser'
 router.delete('/:id', checkAccess('delete_user', 'canDeleteUser'), userController.deleteUser);

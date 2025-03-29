@@ -3,4 +3,8 @@ create_user
 read_user
 update_user
 delete_user
-view_user_status
+read_user_status
+read_role
+create_role
+update_role
+delete_role

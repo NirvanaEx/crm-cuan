@@ -100,7 +100,17 @@ const rolePolicy = {
             return newRoleName !== 'superadmin' && newRoleName !== 'admin';
         }
         return false;
+    },
+
+    // Проверка прав на операции с доступами для ролей.
+    // Пока что только супер-админ может изменять доступы.
+    canModifyRoleAccess: (currentUser) => {
+        if (!currentUser) return false;
+        const currentRoles = currentUser.roles.map(r => r.name.toLowerCase());
+        return currentRoles.includes('superadmin');
     }
+
+    
 
 };
 
