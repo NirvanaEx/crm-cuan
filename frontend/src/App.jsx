@@ -14,6 +14,7 @@ import AdminRoles from "./pages/admin/AdminRoles";
 import AdminAccess from "./pages/admin/AdminAccess";
 import AdminSessions from "./pages/admin/AdminSessions";
 import AdminLogs from "./pages/admin/AdminLogs";
+import Settings from './pages/Settings';
 
 function App() {
     const [progress, setProgress] = useState(0);
@@ -99,6 +100,14 @@ function App() {
                         element={
                             <ProtectedRoute allowedRoles={['superadmin','admin']}>
                                 <AdminLogs />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="settings"
+                        element={
+                            <ProtectedRoute>
+                                <Settings />
                             </ProtectedRoute>
                         }
                     />
