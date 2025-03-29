@@ -9,6 +9,7 @@ import {
   Snackbar,
   Alert
 } from '@mui/material';
+import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import UniversalTable from '../../components/UniversalTable';
 import api from '../../services/api';
 import '../../css/admin/AdminAccess.css';
@@ -66,7 +67,7 @@ export default function AdminAccess() {
       return;
     }
     try {
-      const response = await api.post('/access', newAccess);
+      await api.post('/access', newAccess);
       showSnackbar('Доступ добавлен', 'success');
       fetchAccessList();
       handleCloseAdd();
@@ -107,28 +108,40 @@ export default function AdminAccess() {
   };
 
   const columns = [
-    { key: 'id', label: 'ID', width: '10%' },
-    { key: 'name', label: 'Название доступа', width: '40%' },
-    { key: 'date_creation', label: 'Дата создания', width: '30%' },
     {
       key: 'actions',
-      label: 'Действия',
-      width: '20%',
+      label: '',
+      width: '5%',
       render: (value, row) => (
-        <div>
-          <Button variant="outlined" onClick={() => handleOpenEdit(row)} style={{ marginRight: '5px' }}>
-            Редактировать
-          </Button>
-          <Button variant="outlined" color="error" onClick={() => handleDeleteAccess(row)}>
-            Удалить
-          </Button>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <AiOutlineEdit
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenEdit(row);
+            }}
+            style={{ marginRight: '5px', cursor: 'pointer' }}
+            size={20}
+          />
+          <AiOutlineDelete
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteAccess(row);
+            }}
+            style={{ cursor: 'pointer' }}
+            size={20}
+          />
         </div>
       )
-    }
+    },
+    { key: 'id', label: 'ID', width: '5%' },
+    { key: 'name', label: 'Название доступа', width: '50%' },
+    { key: 'date_creation', label: 'Дата создания', width: '40%' }
   ];
 
   const filteredData = accessList.filter(a =>
-    Object.values(a).some(val => String(val).toLowerCase().includes(search.toLowerCase()))
+    Object.values(a).some(val =>
+      String(val).toLowerCase().includes(search.toLowerCase())
+    )
   );
 
   return (
@@ -190,7 +203,12 @@ export default function AdminAccess() {
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
         <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>

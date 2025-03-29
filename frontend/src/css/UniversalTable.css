@@ -190,3 +190,11 @@ table tbody tr:hover {
 table tbody tr {
     transition: background-color 0.2s ease;
 }
+
+.action-icons {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Центрирование оставшейся иконки */
+    gap: 8px; /* Расстояние между иконками */
+  }
+  
