@@ -1,7 +1,7 @@
 // middlewares/checkAccess.js
 const rolePolicy = require('../config/rolePolicy');
 
-module.exports = function(requiredPermission, fineTuningRuleName) {
+module.exports = function(requiredPermission) {
     return async (req, res, next) => {
         if (!req.user) {
             return res.status(401).json({ error: 'Пользователь не авторизован' });
@@ -12,24 +12,24 @@ module.exports = function(requiredPermission, fineTuningRuleName) {
             return next();
         }
 
-        // Если задана функция тонкой настройки и она определена в rolePolicy,
-        // вызываем её для проверки. Здесь предполагается, что целевая роль
-        // передается в req.body.role или req.body.roleId.
-        if (fineTuningRuleName && typeof rolePolicy[fineTuningRuleName] === 'function') {
-            const targetRole = req.body.role || req.body.roleId || null;
-            if (!rolePolicy[fineTuningRuleName](req.user, targetRole)) {
-                return res.status(403).json({ error: 'Недостаточно прав (тонкая настройка)' });
-            }
-            return next();
-        }
-
-        // Если тонкая настройка не задана, используем базовую проверку разрешений,
-        // которые загружены в req.user.permissions (например, ['create_user', ...])
+        // Базовая проверка прав доступа
         const userPermissions = req.user.permissions || [];
         if (!userPermissions.includes(requiredPermission)) {
             return res.status(403).json({ error: 'Недостаточно прав (базовое разрешение)' });
         }
 
+        const parts = requiredPermission.split('_');
+        if (parts.length === 2) {
+            const [entity, operation] = parts;
+            const ruleName = 'can' + operation.charAt(0).toUpperCase() + operation.slice(1);
+            if (rolePolicy[entity] && typeof rolePolicy[entity][ruleName] === 'function') {
+                const targetRole = req.body.role || req.body.roleId || null;
+                if (!rolePolicy[entity][ruleName](req.user, targetRole)) {
+                    return res.status(403).json({ error: 'Недостаточно прав (тонкая настройка)' });
+                }
+            }
+        }
         next();
     };
 };
+

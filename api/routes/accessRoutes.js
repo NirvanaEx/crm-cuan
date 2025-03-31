@@ -3,7 +3,6 @@ const router = express.Router();
 const accessController = require('../controllers/accessController');
 
 // Маршруты для работы с access
-// Здесь тонкая настройка реализована прямо в контроллере, поэтому дополнительные middleware не используются
 router.get('/', accessController.getAccessList);
 router.get('/:id', accessController.getAccessById);
 router.post('/', accessController.createAccess);

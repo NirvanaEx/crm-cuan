@@ -1,14 +1,8 @@
-// controllers/roleAccessController.js
 const roleAccessService = require('../services/roleAccessService');
 const roleService = require('../services/roleService');
-const rolePolicy = require('../config/rolePolicy');
 
 exports.getRoleAccess = async (req, res, next) => {
     try {
-        // Проверка прав для получения доступа для роли.
-        if (!rolePolicy.canModifyRoleAccess(req.user)) {
-            return res.status(403).json({ error: 'Недостаточно прав для просмотра доступа' });
-        }
         const { roleId } = req.params;
         const role = await roleService.getRoleById(roleId);
         if (!role) {
@@ -23,10 +17,6 @@ exports.getRoleAccess = async (req, res, next) => {
 
 exports.addRoleAccess = async (req, res, next) => {
     try {
-        // Проверка прав для добавления доступа.
-        if (!rolePolicy.canModifyRoleAccess(req.user)) {
-            return res.status(403).json({ error: 'Недостаточно прав для добавления доступа' });
-        }
         const { roleId } = req.params;
         const { accessId } = req.body;
         if (!accessId) {
@@ -48,10 +38,6 @@ exports.addRoleAccess = async (req, res, next) => {
 
 exports.removeRoleAccess = async (req, res, next) => {
     try {
-        // Проверка прав для удаления доступа.
-        if (!rolePolicy.canModifyRoleAccess(req.user)) {
-            return res.status(403).json({ error: 'Недостаточно прав для удаления доступа' });
-        }
         const { roleId, accessId } = req.params;
         const role = await roleService.getRoleById(roleId);
         if (!role) {

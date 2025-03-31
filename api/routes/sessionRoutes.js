@@ -4,15 +4,15 @@ const sessionController = require('../controllers/sessionController');
 const checkAccess = require('../middlewares/checkAccess');
 
 // GET: Получение списка всех сессий с пагинацией и поиском
-router.get('/', checkAccess('read_session'), sessionController.getAllSessions);
+router.get('/', checkAccess('session_read'), sessionController.getAllSessions);
 
 // POST: Создание новой сессии (например, при логине)
-router.post('/', checkAccess('create_session'), sessionController.createSession);
+router.post('/', checkAccess('session_create'), sessionController.createSession);
 
 // PUT: Обновление даты последней активности сессии
-router.put('/:id', checkAccess('update_session'), sessionController.updateSessionLastActive);
+router.put('/:id', checkAccess('session_update'), sessionController.updateSessionLastActive);
 
 // DELETE: Удаление сессии
-router.delete('/:id', checkAccess('delete_session'), sessionController.deleteSession);
+router.delete('/:id', checkAccess('session_delete'), sessionController.deleteSession);
 
 module.exports = router;

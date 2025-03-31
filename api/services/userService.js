@@ -1,10 +1,7 @@
-// services/userService.js
 const mysql = require('mysql2/promise');
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
-const rolePolicy = require('../config/rolePolicy');
 
-// Определение базовых ролей для обратной совместимости
 const isSuperadmin = (user) => {
     return user.roles && user.roles.some(r => r.name.toLowerCase() === 'superadmin');
 };
@@ -13,7 +10,6 @@ const isAdmin = (user) => {
     return user.roles && user.roles.some(r => r.name.toLowerCase() === 'admin');
 };
 
-// Получение названия роли по roleId
 const getRoleNameById = async (roleId) => {
     const [rows] = await db.execute(
         'SELECT name FROM role WHERE id = ?',
@@ -30,11 +26,6 @@ exports.createUserWithRole = async (currentUser, { login, password, surname, nam
     if (!targetRole) {
         throw new Error('Неверная роль');
     }
-    // Проверка тонких правил для создания пользователя
-    if (!rolePolicy.canCreateUser(currentUser, targetRole)) {
-        throw new Error('Недостаточно прав для создания пользователя с указанной ролью');
-    }
-
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
@@ -96,10 +87,8 @@ exports.getUsers = async (currentUser) => {
     if (isSuperadmin(currentUser)) {
         // Суперадмин видит всех пользователей
     } else if (isAdmin(currentUser)) {
-        // Админ не видит супер-админов
         query += ` WHERE LOWER(r.name) <> 'superadmin' `;
     } else {
-        // Остальные пользователи видят только активных
         query += `
       WHERE (u.id NOT IN (
         SELECT DISTINCT user_id FROM user_status_history
@@ -169,18 +158,14 @@ exports.updateUserFull = async (currentUser, id, { login, password, surname, nam
         await connection.beginTransaction();
         const [targetRoleRows] = await connection.execute(
             `SELECT r.name AS role_name FROM users_role ur
-       JOIN role r ON ur.role_id = r.id
-       WHERE ur.user_id = ?`,
+             JOIN role r ON ur.role_id = r.id
+             WHERE ur.user_id = ?`,
             [id]
         );
         const targetRole = targetRoleRows.length ? targetRoleRows[0].role_name.toLowerCase() : null;
         if (!targetRole) {
             await connection.rollback();
             return false;
-        }
-        // Проверка тонких правил для обновления данных пользователя
-        if (!rolePolicy.canUpdateUser(currentUser, targetRole)) {
-            throw new Error('Недостаточно прав для обновления пользователя с указанной ролью');
         }
         const [oldUserRows] = await connection.execute(
             'SELECT login, password FROM `user` WHERE id = ?',
@@ -204,21 +189,17 @@ exports.updateUserFull = async (currentUser, id, { login, password, surname, nam
         );
         await connection.execute(
             `UPDATE user_info
-       SET surname = COALESCE(?, surname),
-           name = COALESCE(?, name),
-           patronym = COALESCE(?, patronym),
-           phone = COALESCE(?, phone)
-       WHERE user_id = ?`,
+             SET surname = COALESCE(?, surname),
+                 name = COALESCE(?, name),
+                 patronym = COALESCE(?, patronym),
+                 phone = COALESCE(?, phone)
+             WHERE user_id = ?`,
             [surname, name, patronym, phone, id]
         );
         if (roleId !== undefined && roleId !== null && String(roleId).trim() !== '') {
             const newRole = await getRoleNameById(roleId);
             if (!newRole) {
                 throw new Error('Неверная новая роль');
-            }
-            // Проверка тонких правил при смене роли
-            if (!rolePolicy.canUpdateUser(currentUser, newRole)) {
-                throw new Error('Недостаточно прав для смены роли');
             }
             await connection.execute(
                 'DELETE FROM users_role WHERE user_id = ?',
@@ -254,17 +235,14 @@ exports.updateUserStatus = async (currentUser, id, status) => {
         await connection.beginTransaction();
         const [targetRoleRows] = await connection.execute(
             `SELECT r.name AS role_name FROM users_role ur
-       JOIN role r ON ur.role_id = r.id
-       WHERE ur.user_id = ?`,
+             JOIN role r ON ur.role_id = r.id
+             WHERE ur.user_id = ?`,
             [id]
         );
         const targetRole = targetRoleRows.length ? targetRoleRows[0].role_name.toLowerCase() : null;
         if (!targetRole) {
             await connection.rollback();
             return false;
-        }
-        if (!rolePolicy.canUpdateStatus(currentUser, targetRole)) {
-            throw new Error('Недостаточно прав для обновления статуса пользователя с указанной ролью');
         }
         const [rows] = await connection.execute(
             'SELECT id FROM `user` WHERE id = ?',
@@ -294,16 +272,13 @@ exports.deleteUser = async (currentUser, id) => {
     }
     const [roleRows] = await db.execute(
         `SELECT r.name AS role_name FROM users_role ur
-     JOIN role r ON ur.role_id = r.id
-     WHERE ur.user_id = ?`,
+         JOIN role r ON ur.role_id = r.id
+         WHERE ur.user_id = ?`,
         [id]
     );
     const targetRole = roleRows.length ? roleRows[0].role_name.toLowerCase() : null;
     if (!targetRole) {
         throw new Error('Пользователь не найден');
-    }
-    if (!rolePolicy.canDeleteUser(currentUser, targetRole)) {
-        throw new Error('Недостаточно прав для удаления пользователя с указанной ролью');
     }
     try {
         const [result] = await db.execute(
