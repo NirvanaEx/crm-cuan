@@ -20,13 +20,15 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Вызываем метод login, который обращается к API, получает токен и данные пользователя
-            await loginUser(loginInput, passwordInput);
-            navigate('/');
+          // Допустим, определяем устройство (например, из navigator.userAgent)
+          const device = navigator.userAgent;
+          await loginUser(loginInput, passwordInput, device);
+          navigate('/');
         } catch (error) {
-            alert('Неверный логин или пароль');
+          alert('Неверный логин или пароль');
         }
     };
+      
 
     return (
         <div className="login-container">

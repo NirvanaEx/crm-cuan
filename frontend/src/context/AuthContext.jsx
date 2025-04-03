@@ -34,17 +34,22 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const login = async (loginValue, passwordValue) => {
+    const login = async (loginValue, passwordValue, deviceValue) => {
         try {
-            const response = await api.post('/auth/login', { login: loginValue, password: passwordValue });
-            const { token } = response.data;
-            localStorage.setItem('authToken', token);
-            await fetchUserData();
+          const response = await api.post('/auth/login', { 
+            login: loginValue, 
+            password: passwordValue, 
+            device: deviceValue 
+          });
+          const { token } = response.data;
+          localStorage.setItem('authToken', token);
+          await fetchUserData();
         } catch (error) {
-            console.error('Ошибка авторизации:', error);
-            throw error;
+          console.error('Ошибка авторизации:', error);
+          throw error;
         }
     };
+      
 
     const logout = async () => {
         try {
