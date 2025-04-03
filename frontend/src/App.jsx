@@ -53,64 +53,51 @@ function App() {
                         </ProtectedRoute>
                     }
                 >
-                    <Route index element={<Dashboard />} />
-                    <Route path="dashboard" element={<Dashboard />} />
-                    <Route
-                        path="questions"
-                        element={
-                            <ProtectedRoute allowedRoles={['superadmin','admin','manager']}>
-                                <Questions />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="admin/users"
-                        element={
-                            <ProtectedRoute allowedRoles={['superadmin','admin']}>
-                                <AdminUsers />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="admin/roles"
-                        element={
-                            <ProtectedRoute allowedRoles={['superadmin']}>
-                                <AdminRoles />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="admin/access"
-                        element={
-                            <ProtectedRoute allowedRoles={['superadmin']}>
-                                <AdminAccess />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="admin/sessions"
-                        element={
-                            <ProtectedRoute allowedRoles={['superadmin','admin']}>
-                                <AdminSessions />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="admin/logs"
-                        element={
-                            <ProtectedRoute allowedRoles={['superadmin','admin']}>
-                                <AdminLogs />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="settings"
-                        element={
-                            <ProtectedRoute>
-                                <Settings />
-                            </ProtectedRoute>
-                        }
-                    />
+                    <Route index element={
+                        <ProtectedRoute allowedPermissions={['dashboard_view']}>
+                            <Dashboard />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="dashboard" element={
+                        <ProtectedRoute allowedPermissions={['dashboard_view']}>
+                            <Dashboard />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="questions" element={
+                        <ProtectedRoute allowedPermissions={['questions_read']}>
+                            <Questions />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="admin/users" element={
+                        <ProtectedRoute allowedPermissions={['user_read']}>
+                            <AdminUsers />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="admin/roles" element={
+                        <ProtectedRoute allowedPermissions={['role_read']}>
+                            <AdminRoles />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="admin/access" element={
+                        <ProtectedRoute allowedPermissions={['access_read']}>
+                            <AdminAccess />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="admin/sessions" element={
+                        <ProtectedRoute allowedPermissions={['session_read']}>
+                            <AdminSessions />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="admin/logs" element={
+                        <ProtectedRoute allowedPermissions={['log_read']}>
+                            <AdminLogs />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="settings" element={
+                        <ProtectedRoute allowedPermissions={[]}>
+                            <Settings />
+                        </ProtectedRoute>
+                    } />
                     <Route path="*" element={<NotFound />} />
                 </Route>
             </Routes>

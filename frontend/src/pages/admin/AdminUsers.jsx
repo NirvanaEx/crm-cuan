@@ -1,4 +1,3 @@
-// AdminUsers.jsx
 import React, { useState, useEffect, useContext } from 'react';
 import api from '../../services/api';
 import UniversalTable from '../../components/UniversalTable';
@@ -101,7 +100,7 @@ function StatusBadge({ status }) {
 export default function AdminUsers() {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
-  const { user: currentUser } = useContext(AuthContext);
+  const { user: currentUser, permissions } = useContext(AuthContext);
 
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
@@ -180,6 +179,12 @@ export default function AdminUsers() {
     if (!currentUser || !currentUser.roles) return false;
     return currentUser.roles.some((r) => r.name.toLowerCase() === 'superadmin');
   }
+
+  // Определяются права доступа для управления пользователями
+  const canCreate = currentUserIsSuperadmin() || (permissions || []).includes('user_create');
+  const canUpdate = currentUserIsSuperadmin() || (permissions || []).includes('user_update');
+  const canDelete = currentUserIsSuperadmin() || (permissions || []).includes('user_delete');
+  const canViewStatus = currentUserIsSuperadmin() || (permissions || []).includes('userStatus_read');
 
   const handleOpenAdd = () => setOpenAdd(true);
   const handleCloseAdd = () => {
@@ -266,7 +271,7 @@ export default function AdminUsers() {
     }
   };
 
-  // Определены столбцы с нужным порядком и объединением Ф.И.О.
+  // Определяются базовые столбцы таблицы
   const baseColumns = [
     { key: 'id', label: 'ID', width: '5%' },
     { key: 'login', label: 'Логин', width: '15%' },
@@ -286,22 +291,24 @@ export default function AdminUsers() {
     label: 'Статус',
     width: '15%',
     render: (value, row) => {
-      if (currentUserIsSuperadmin()) {
-        return (
-          <StatusDropdown
-            initialStatus={value}
-            userId={row.id}
-            onStatusChange={fetchUsers}
-            showSnackbar={showSnackbar}
-          />
-        );
-      } else {
-        return <StatusBadge status={value} />;
-      }
+      return currentUserIsSuperadmin() ? (
+        <StatusDropdown
+          initialStatus={value}
+          userId={row.id}
+          onStatusChange={fetchUsers}
+          showSnackbar={showSnackbar}
+        />
+      ) : (
+        <StatusBadge status={value} />
+      );
     }
   };
 
-  const columns = currentUserIsSuperadmin() ? [...baseColumns, statusColumn] : [...baseColumns, statusColumn];
+  // Добавление столбца со статусом, если есть разрешение на просмотр
+  const columns = [...baseColumns];
+  if (canViewStatus) {
+    columns.push(statusColumn);
+  }
 
   return (
     <div className="admin-users-container">
@@ -323,27 +330,29 @@ export default function AdminUsers() {
             width: '300px'
           }}
         />
-        <Button
-          variant="contained"
-          onClick={handleOpenAdd}
-          sx={{
-            backgroundColor: isDarkMode ? '#7367f0' : '#007bff',
-            '&:hover': {
-              backgroundColor: isDarkMode ? '#5c54c7' : '#0056b3'
-            }
-          }}
-        >
-          Добавить пользователя
-        </Button>
+        {canCreate && (
+          <Button
+            variant="contained"
+            onClick={handleOpenAdd}
+            sx={{
+              backgroundColor: isDarkMode ? '#7367f0' : '#007bff',
+              '&:hover': {
+                backgroundColor: isDarkMode ? '#5c54c7' : '#0056b3'
+              }
+            }}
+          >
+            Добавить пользователя
+          </Button>
+        )}
       </div>
 
       <UniversalTable
         columns={columns}
         data={filteredUsers}
         itemsPerPage={5}
-        onDelete={handleDelete}
-        onEdit={handleOpenEdit}
-        hideDeleteIcon={true}
+        onDelete={canDelete ? handleDelete : null}
+        onEdit={canUpdate ? handleOpenEdit : null}
+        hideDeleteIcon={!canDelete}
       />
 
       <Dialog
@@ -352,13 +361,13 @@ export default function AdminUsers() {
         fullWidth
         maxWidth="md"
         slotProps={{
-            paper: {
-              sx: {
-                backgroundColor: isDarkMode ? '#2b2b2b' : '#fff',
-                color: isDarkMode ? '#fff' : '#000'
-              }
+          paper: {
+            sx: {
+              backgroundColor: isDarkMode ? '#2b2b2b' : '#fff',
+              color: isDarkMode ? '#fff' : '#000'
             }
-          }}
+          }
+        }}
       >
         <DialogTitle>Добавить пользователя</DialogTitle>
         <DialogContent
@@ -444,13 +453,13 @@ export default function AdminUsers() {
         fullWidth
         maxWidth="md"
         slotProps={{
-            paper: {
-              sx: {
-                backgroundColor: isDarkMode ? '#2b2b2b' : '#fff',
-                color: isDarkMode ? '#fff' : '#000'
-              }
+          paper: {
+            sx: {
+              backgroundColor: isDarkMode ? '#2b2b2b' : '#fff',
+              color: isDarkMode ? '#fff' : '#000'
             }
-          }}
+          }
+        }}
       >
         <DialogTitle>Редактировать пользователя</DialogTitle>
         <DialogContent

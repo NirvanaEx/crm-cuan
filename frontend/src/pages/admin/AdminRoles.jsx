@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert } from '@mui/material';
 import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import UniversalTable from '../../components/UniversalTable';
 import RoleAccessModal from '../../components/RoleAccessModal';
 import api from '../../services/api';
+import { AuthContext } from '../../context/AuthContext';
 import '../../css/admin/AdminRoles.css';
 
 export default function AdminRoles() {
+  const { user: currentUser, permissions } = useContext(AuthContext);
   const [roles, setRoles] = useState([]);
   const [search, setSearch] = useState('');
   const [openAdd, setOpenAdd] = useState(false);
@@ -101,11 +103,20 @@ export default function AdminRoles() {
   };
   const handleCloseEdit = () => setOpenEdit(false);
 
-  // При клике по строке таблицы открывается модальное окно для управления доступами роли
   const handleRowClick = (row) => {
     setRoleForAccess(row);
     setOpenRoleAccess(true);
   };
+
+  // Определение наличия доступа на основании разрешений или роли superadmin
+  const currentUserIsSuperadmin = () => {
+    if (!currentUser || !currentUser.roles) return false;
+    return currentUser.roles.some((r) => r.name.toLowerCase() === 'superadmin');
+  };
+  const canCreateRole = currentUserIsSuperadmin() || (permissions || []).includes('role_create');
+  const canUpdateRole = currentUserIsSuperadmin() || (permissions || []).includes('role_update');
+  const canDeleteRole = currentUserIsSuperadmin() || (permissions || []).includes('role_delete');
+  const canRoleAccess = currentUserIsSuperadmin() || (permissions || []).includes('roleAccess_read');
 
   const columns = [
     {
@@ -114,22 +125,26 @@ export default function AdminRoles() {
       width: '5%',
       render: (value, row) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <AiOutlineEdit
-            onClick={(e) => {
-              e.stopPropagation();
-              handleOpenEdit(row);
-            }}
-            style={{ marginRight: '5px', cursor: 'pointer' }}
-            size={20}
-          />
-          <AiOutlineDelete
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDeleteRole(row);
-            }}
-            style={{ cursor: 'pointer' }}
-            size={20}
-          />
+          {canUpdateRole && (
+            <AiOutlineEdit
+              onClick={(e) => {
+                e.stopPropagation();
+                handleOpenEdit(row);
+              }}
+              style={{ marginRight: '5px', cursor: 'pointer' }}
+              size={20}
+            />
+          )}
+          {canDeleteRole && (
+            <AiOutlineDelete
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteRole(row);
+              }}
+              style={{ cursor: 'pointer' }}
+              size={20}
+            />
+          )}
         </div>
       )
     },
@@ -155,15 +170,17 @@ export default function AdminRoles() {
           onChange={(e) => setSearch(e.target.value)}
           className="admin-roles-search"
         />
-        <Button variant="contained" onClick={handleOpenAdd}>
-          Добавить роль
-        </Button>
+        {canCreateRole && (
+          <Button variant="contained" onClick={handleOpenAdd}>
+            Добавить роль
+          </Button>
+        )}
       </div>
       <UniversalTable
         columns={columns}
         data={filteredRoles}
         itemsPerPage={5}
-        onRowClick={handleRowClick}
+        onRowClick={canRoleAccess ? handleRowClick : null}
       />
 
       {roleForAccess && (

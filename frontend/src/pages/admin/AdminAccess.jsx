@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Button,
   TextField,
@@ -12,9 +12,11 @@ import {
 import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import UniversalTable from '../../components/UniversalTable';
 import api from '../../services/api';
+import { AuthContext } from '../../context/AuthContext';
 import '../../css/admin/AdminAccess.css';
 
 export default function AdminAccess() {
+  const { user: currentUser, permissions } = useContext(AuthContext);
   const [accessList, setAccessList] = useState([]);
   const [search, setSearch] = useState('');
   const [openAdd, setOpenAdd] = useState(false);
@@ -107,6 +109,17 @@ export default function AdminAccess() {
     }
   };
 
+  // Определение прав доступа для управления доступами
+  const currentUserIsSuperadmin = () => {
+    if (!currentUser || !currentUser.roles) return false;
+    return currentUser.roles.some(r => r.name.toLowerCase() === 'superadmin');
+  };
+
+  const canCreateAccess = currentUserIsSuperadmin() || (permissions || []).includes('roleAccess_create');
+  // Для редактирования используем то же разрешение, что и для создания, если отдельного не предусмотрено
+  const canUpdateAccess = currentUserIsSuperadmin() || (permissions || []).includes('roleAccess_create');
+  const canDeleteAccess = currentUserIsSuperadmin() || (permissions || []).includes('roleAccess_delete');
+
   const columns = [
     {
       key: 'actions',
@@ -114,22 +127,26 @@ export default function AdminAccess() {
       width: '5%',
       render: (value, row) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <AiOutlineEdit
-            onClick={(e) => {
-              e.stopPropagation();
-              handleOpenEdit(row);
-            }}
-            style={{ marginRight: '5px', cursor: 'pointer' }}
-            size={20}
-          />
-          <AiOutlineDelete
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDeleteAccess(row);
-            }}
-            style={{ cursor: 'pointer' }}
-            size={20}
-          />
+          {canUpdateAccess && (
+            <AiOutlineEdit
+              onClick={(e) => {
+                e.stopPropagation();
+                handleOpenEdit(row);
+              }}
+              style={{ marginRight: '5px', cursor: 'pointer' }}
+              size={20}
+            />
+          )}
+          {canDeleteAccess && (
+            <AiOutlineDelete
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteAccess(row);
+              }}
+              style={{ cursor: 'pointer' }}
+              size={20}
+            />
+          )}
         </div>
       )
     },
@@ -155,13 +172,14 @@ export default function AdminAccess() {
           onChange={(e) => setSearch(e.target.value)}
           className="admin-access-search"
         />
-        <Button variant="contained" onClick={handleOpenAdd}>
-          Добавить доступ
-        </Button>
+        {canCreateAccess && (
+          <Button variant="contained" onClick={handleOpenAdd}>
+            Добавить доступ
+          </Button>
+        )}
       </div>
       <UniversalTable columns={columns} data={filteredData} itemsPerPage={5} />
 
-      {/* Диалог добавления доступа */}
       <Dialog open={openAdd} onClose={handleCloseAdd} fullWidth maxWidth="sm">
         <DialogTitle>Добавить доступ</DialogTitle>
         <DialogContent>
@@ -182,7 +200,6 @@ export default function AdminAccess() {
         </DialogActions>
       </Dialog>
 
-      {/* Диалог редактирования доступа */}
       <Dialog open={openEdit} onClose={handleCloseEdit} fullWidth maxWidth="sm">
         <DialogTitle>Редактировать доступ</DialogTitle>
         <DialogContent>

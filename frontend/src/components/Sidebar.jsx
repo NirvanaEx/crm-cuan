@@ -1,19 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  FaHome, 
-  FaQuestionCircle, 
-  FaCog, 
-  FaSignOutAlt, 
-  FaMoon, 
-  FaSun, 
-  FaLanguage, 
-  FaUsers, 
-  FaUserShield, 
-  FaKey, 
-  FaClock, 
-  FaFileAlt 
-} from 'react-icons/fa';
+import { FaHome, FaQuestionCircle, FaCog, FaSignOutAlt, FaMoon, FaSun, FaLanguage, FaUsers, FaUserShield, FaKey, FaClock, FaFileAlt } from 'react-icons/fa';
 import { ThemeContext } from '../context/ThemeContext';
 import { AuthContext } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -31,32 +18,28 @@ export default function Sidebar({ isOpen }) {
     console.log('Permissions в Sidebar:', permissions);
   }, [permissions]);
 
-  // Пункты меню для пользователей
   const userItems = [
     { name: t('sidebar:DASHBOARD'), icon: <FaHome />, path: '/dashboard', requiredPermission: 'dashboard_view' },
     { name: t('sidebar:QUESTIONS'), icon: <FaQuestionCircle />, path: '/questions', requiredPermission: 'questions_read' },
   ];
 
-  // Пункты меню для администраторской части
   const adminItems = [
-    { name: t('common:USERS'), icon: <FaUsers />, path: '/admin/users', requiredPermission: 'read_user' },
-    { name: t('common:ROLES'), icon: <FaUserShield />, path: '/admin/roles', requiredPermission: 'read_role' },
+    { name: t('common:USERS'), icon: <FaUsers />, path: '/admin/users', requiredPermission: 'user_read' },
+    { name: t('common:ROLES'), icon: <FaUserShield />, path: '/admin/roles', requiredPermission: 'role_read' },
     { name: t('common:ACCESS'), icon: <FaKey />, path: '/admin/access', requiredPermission: 'access_read' },
     { name: t('common:SESSIONS'), icon: <FaClock />, path: '/admin/sessions', requiredPermission: 'session_read' },
     { name: t('common:LOGS'), icon: <FaFileAlt />, path: '/admin/logs', requiredPermission: 'log_read' },
   ];
 
-  // Добавляем пункт настроек как ссылку
   const settingsItem = { name: t('common:SETTINGS'), icon: <FaCog />, path: '/settings' };
 
-  // Определяем активный пункт по текущему URL
   useEffect(() => {
     const allItems = [...userItems, ...adminItems, settingsItem];
-    const currentItem = allItems.find((item) => location.pathname.includes(item.path));
+    const currentItem = allItems.find(item => location.pathname.includes(item.path));
     if (currentItem) {
       setActiveItem(currentItem.name);
     }
-  }, [location, userItems, adminItems, settingsItem, t]);
+  }, [location, userItems, adminItems, settingsItem]);
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'ru' : 'en';
@@ -72,12 +55,10 @@ export default function Sidebar({ isOpen }) {
     }
   };
 
-  // Получаем имена ролей пользователя для проверки супер-админа
-  const userRoleNames = roles && roles.length ? roles.map(r => r.name) : [];
+  const isSuperAdmin = roles && roles.some(role => role.name === 'superadmin');
 
-  // Фильтрация пунктов меню по разрешениям
-  const filterItems = (items) => {
-    if (userRoleNames.includes('superadmin')) {
+  const filterItems = items => {
+    if (isSuperAdmin) {
       return items;
     }
     return items.filter(item => {
@@ -101,7 +82,7 @@ export default function Sidebar({ isOpen }) {
         <>
           {isOpen && <h4 className="sidebar-section-title">{t('sidebar:USER_SECTION')}</h4>}
           <ul className="sidebar-menu">
-            {filteredUserItems.map((item) => (
+            {filteredUserItems.map(item => (
               <Link to={item.path} key={item.name} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <li className={activeItem === item.name ? 'active' : ''}>
                   {item.icon}
@@ -117,7 +98,7 @@ export default function Sidebar({ isOpen }) {
         <>
           {isOpen && <h4 className="sidebar-section-title">{t('sidebar:ADMIN_SECTION')}</h4>}
           <ul className="sidebar-menu">
-            {filteredAdminItems.map((item) => (
+            {filteredAdminItems.map(item => (
               <Link to={item.path} key={item.name} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <li className={activeItem === item.name ? 'active' : ''}>
                   {item.icon}

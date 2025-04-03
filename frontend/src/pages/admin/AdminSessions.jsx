@@ -1,25 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import api from '../../services/api';
 import UniversalTable from '../../components/UniversalTable';
 import { AiOutlineCalendar } from 'react-icons/ai';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { AuthContext } from '../../context/AuthContext';
 import '../../css/admin/AdminSessions.css';
 
 const AdminSession = () => {
-  // Храним сессии и общее количество
+  const { user: currentUser, permissions } = useContext(AuthContext);
+  // Определение superadmin
+  const currentUserIsSuperadmin = () => {
+    if (!currentUser || !currentUser.roles) return false;
+    return currentUser.roles.some(r => r.name.toLowerCase() === 'superadmin');
+  };
+  // Проверка разрешения на просмотр сессий
+  const canViewSessions = currentUserIsSuperadmin() || (permissions || []).includes('session_read');
+  if (!canViewSessions) {
+    return <p>Нет доступа</p>;
+  }
+
   const [sessionsData, setSessionsData] = useState({ sessions: [], total: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Параметры пагинации
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  
+
   // Параметры поиска
   const [searchText, setSearchText] = useState('');
-  const [searchField, setSearchField] = useState('login'); // По умолчанию поиск по логину
-  
+  const [searchField, setSearchField] = useState('login');
+
   // Параметры фильтрации по дате
   const [dateFilterVisible, setDateFilterVisible] = useState(false);
   const [dateFrom, setDateFrom] = useState(null);
@@ -29,10 +41,9 @@ const AdminSession = () => {
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      // Преобразуем выбранные даты в формат YYYY-MM-DD
       const fromString = dateFrom ? dateFrom.toISOString().split('T')[0] : '';
       const toString = dateTo ? dateTo.toISOString().split('T')[0] : '';
-      
+
       const params = {
         page,
         limit,
@@ -41,7 +52,7 @@ const AdminSession = () => {
       };
       if (fromString) params.dateFrom = fromString;
       if (toString) params.dateTo = toString;
-      
+
       const response = await api.get('/sessions', { params });
       let sessions = [];
       let total = 0;
@@ -60,7 +71,6 @@ const AdminSession = () => {
     }
   };
 
-  // Автоматическая перезагрузка данных при изменении параметров
   useEffect(() => {
     fetchSessions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -147,16 +157,15 @@ const AdminSession = () => {
       ) : (
         <UniversalTable
           columns={[
-            { key: 'id', label: 'ID', width: '5%'},
+            { key: 'id', label: 'ID', width: '5%' },
             { key: 'login', label: 'Логин', width: '25%' },
-            { key: 'device', label: 'Устройство' , width: '20%'},
+            { key: 'device', label: 'Устройство', width: '20%' },
             { key: 'ip_address', label: 'IP-адрес', width: '20%' },
             {
               key: 'date_last_active',
               label: 'Последняя активность',
               width: '15%',
               render: (value) => (value ? new Date(value).toLocaleString() : '-')
-              
             },
             {
               key: 'date_creation',
