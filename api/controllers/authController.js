@@ -2,11 +2,13 @@ const authService = require('../services/authService');
 
 exports.login = async (req, res, next) => {
     try {
-        const { login, password } = req.body;
+        const { login, password, device } = req.body;
+        // Получение IP-адреса из запроса
+        const ipAddress = req.ip;
         if (!login || !password) {
             return res.status(400).json({ error: 'Поля login и password обязательны' });
         }
-        const token = await authService.login(login, password);
+        const token = await authService.login(login, password, device, ipAddress);
         if (!token) {
             return res.status(401).json({ error: 'Неверные учетные данные' });
         }

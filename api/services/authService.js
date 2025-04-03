@@ -89,10 +89,13 @@ exports.login = async (login, password, device, ipAddress) => {
         'INSERT INTO user_token (user_id, token, date_expired, token_status) VALUES (?, ?, ?, ?)',
         [user.id, token, dateExpired, 'active']
     );
-    // Создаётся запись о сессии, связывающая токен и параметры устройства
-    await sessionService.createSession(result.insertId, device, ipAddress);
+    // Если device или ipAddress отсутствуют, передаём null вместо undefined
+    const safeDevice = device !== undefined ? device : null;
+    const safeIpAddress = ipAddress !== undefined ? ipAddress : null;
+    await sessionService.createSession(result.insertId, safeDevice, safeIpAddress);
     return token;
 };
+
 
 exports.logout = async (token) => {
     const [result] = await db.execute(
