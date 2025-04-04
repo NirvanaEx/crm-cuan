@@ -16,10 +16,11 @@ exports.createUserWithRole = async (req, res, next) => {
 
 exports.getUsers = async (req, res, next) => {
     try {
-        const users = await userService.getUsers(req.user);
-        res.json(users);
+      const { search, searchField } = req.query;
+      const users = await userService.getUsers(req.user, search, searchField);
+      res.json(users);
     } catch (error) {
-        next(error);
+      next(error);
     }
 };
 

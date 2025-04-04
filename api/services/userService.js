@@ -57,57 +57,80 @@ exports.createUserWithRole = async (currentUser, { login, password, surname, nam
     }
 };
 
-exports.getUsers = async (currentUser) => {
+exports.getUsers = async (currentUser, search, searchField) => {
     let query = `
-    SELECT
-      u.id,
-      u.login,
-      u.date_creation,
-      ui.surname,
-      ui.name,
-      ui.patronym,
-      ui.phone,
-      ur.role_id,
-      r.name AS role_name,
-      (
-        SELECT COALESCE(
-          (SELECT ush.status
-           FROM user_status_history ush
-           WHERE ush.user_id = u.id
-           ORDER BY ush.date_creation DESC
-           LIMIT 1),
-          'active'
-        )
-      ) AS status
-    FROM \`user\` u
-    LEFT JOIN user_info ui ON u.id = ui.user_id
-    LEFT JOIN users_role ur ON u.id = ur.user_id
-    LEFT JOIN role r ON ur.role_id = r.id
-  `;
-    if (isSuperadmin(currentUser)) {
-        // Суперадмин видит всех пользователей
-    } else if (isAdmin(currentUser)) {
-        query += ` WHERE LOWER(r.name) <> 'superadmin' `;
-    } else {
-        query += `
-      WHERE (u.id NOT IN (
-        SELECT DISTINCT user_id FROM user_status_history
-      )
-      OR u.id IN (
-        SELECT ush.user_id
-        FROM user_status_history ush
-        WHERE ush.date_creation = (
-          SELECT MAX(date_creation)
-          FROM user_status_history
-          WHERE user_id = ush.user_id
-        )
-        AND ush.status = 'active'
-      ))
+      SELECT
+        u.id,
+        u.login,
+        u.date_creation,
+        ui.surname,
+        ui.name,
+        ui.patronym,
+        ui.phone,
+        ur.role_id,
+        r.name AS role_name,
+        (
+          SELECT COALESCE(
+            (SELECT ush.status
+             FROM user_status_history ush
+             WHERE ush.user_id = u.id
+             ORDER BY ush.date_creation DESC
+             LIMIT 1),
+            'active'
+          )
+        ) AS status
+      FROM \`user\` u
+      LEFT JOIN user_info ui ON u.id = ui.user_id
+      LEFT JOIN users_role ur ON u.id = ur.user_id
+      LEFT JOIN role r ON ur.role_id = r.id
     `;
+    const conditions = [];
+    const values = [];
+    
+    // Поиск по выбранному полю
+    if (search && searchField) {
+      if (searchField === 'fullName') {
+        conditions.push("CONCAT_WS(' ', ui.surname, ui.name, ui.patronym) LIKE ?");
+        values.push(`%${search}%`);
+      } else if (searchField === 'role_name') {
+        conditions.push("LOWER(r.name) LIKE ?");
+        values.push(`%${search.toLowerCase()}%`);
+      } else if (['login', 'phone'].includes(searchField)) {
+        conditions.push(`${searchField} LIKE ?`);
+        values.push(`%${search}%`);
+      }
     }
-    const [rows] = await db.execute(query);
+    
+    // Ограничения для администраторов
+    if (isSuperadmin(currentUser)) {
+      // Суперадмин видит всех
+    } else if (isAdmin(currentUser)) {
+      conditions.push("LOWER(r.name) <> 'superadmin'");
+    } else {
+      conditions.push(`(
+        u.id NOT IN (
+          SELECT DISTINCT user_id FROM user_status_history
+        )
+        OR u.id IN (
+          SELECT ush.user_id
+          FROM user_status_history ush
+          WHERE ush.date_creation = (
+            SELECT MAX(date_creation)
+            FROM user_status_history
+            WHERE user_id = ush.user_id
+          )
+          AND ush.status = 'active'
+        )
+      )`);
+    }
+    
+    if (conditions.length) {
+      query += " WHERE " + conditions.join(" AND ");
+    }
+    
+    const [rows] = await db.execute(query, values);
     return rows;
-};
+  };
 
 exports.getUserById = async (id) => {
     const [rows] = await db.execute(
