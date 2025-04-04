@@ -29,6 +29,8 @@ export default function Sidebar({ isOpen }) {
     { name: t('common:ACCESS'), icon: <FaKey />, path: '/admin/access', requiredPermission: 'access_read' },
     { name: t('common:SESSIONS'), icon: <FaClock />, path: '/admin/sessions', requiredPermission: 'session_read' },
     { name: t('common:LOGS'), icon: <FaFileAlt />, path: '/admin/logs', requiredPermission: 'log_read' },
+    // Новый пункт для управления языками
+    { name: t('common:LANGUAGES'), icon: <FaLanguage />, path: '/admin/language', requiredPermission: 'language_read' },
   ];
 
   const settingsItem = { name: t('common:SETTINGS'), icon: <FaCog />, path: '/settings' };

@@ -156,31 +156,33 @@ const AdminSession = () => {
         <p className="error">{error}</p>
       ) : (
         <UniversalTable
-          columns={[
-            { key: 'id', label: 'ID', width: '5%' },
-            { key: 'login', label: 'Логин', width: '25%' },
-            { key: 'device', label: 'Устройство', width: '20%' },
-            { key: 'ip_address', label: 'IP-адрес', width: '20%' },
-            {
-              key: 'date_last_active',
-              label: 'Последняя активность',
-              width: '15%',
-              render: (value) => (value ? new Date(value).toLocaleString() : '-')
-            },
-            {
-              key: 'date_creation',
-              label: 'Дата создания',
-              width: '15%',
-              render: (value) => (value ? new Date(value).toLocaleString() : '-')
-            }
-          ]}
-          data={sessionsData.sessions}
-          itemsPerPage={limit}
-          currentPage={page}
-          onPageChange={handlePageChange}
-          hideEditIcon={true}
-          hideDeleteIcon={true}
-        />
+        columns={[
+          { key: 'id', label: 'ID', width: '5%' },
+          { key: 'login', label: 'Логин', width: '25%' },
+          { key: 'device', label: 'Устройство', width: '20%' },
+          { key: 'ip_address', label: 'IP-адрес', width: '20%' },
+          {
+            key: 'date_last_active',
+            label: 'Последняя активность',
+            width: '15%',
+            render: (value) => (value ? new Date(value).toLocaleString() : '-')
+          },
+          {
+            key: 'date_creation',
+            label: 'Дата создания',
+            width: '15%',
+            render: (value) => (value ? new Date(value).toLocaleString() : '-')
+          }
+        ]}
+        data={sessionsData.sessions}
+        totalItems={sessionsData.total}  // Передаём общее количество записей
+        itemsPerPage={limit}
+        currentPage={page}
+        onPageChange={handlePageChange}
+        hideEditIcon={true}
+        hideDeleteIcon={true}
+      />
+
       )}
     </div>
   );

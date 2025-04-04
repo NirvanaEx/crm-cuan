@@ -8,6 +8,7 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import '../css/Settings.css';
 import api from '../services/api';
 
@@ -28,6 +29,10 @@ const Settings = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
+  // Состояния для настройки языка
+  const [languagesList, setLanguagesList] = useState([]);
+  const [selectedLanguage, setSelectedLanguage] = useState('');
+
   // Состояния для Snackbar
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -46,7 +51,30 @@ const Settings = () => {
         setLoading(false);
       }
     };
+
+    const fetchLanguages = async () => {
+      try {
+        const response = await api.get('/language');
+        setLanguagesList(response.data);
+      } catch (err) {
+        console.error('Ошибка загрузки языков', err);
+      }
+    };
+
+    const fetchUserSetting = async () => {
+      try {
+        const response = await api.get('/user-setting');
+        if (response.data && response.data.selected_language_id) {
+          setSelectedLanguage(response.data.selected_language_id);
+        }
+      } catch (err) {
+        console.error('Ошибка загрузки настроек пользователя', err);
+      }
+    };
+
     fetchUserData();
+    fetchLanguages();
+    fetchUserSetting();
   }, []);
 
   const handleAvatarChange = (e) => {
@@ -62,7 +90,7 @@ const Settings = () => {
     }));
   };
 
-  // Отправка данных профиля в формате JSON (аватар можно обработать отдельно)
+  // Сохранение данных профиля (без аватара)
   const handleSave = async () => {
     try {
       const profileData = {
@@ -113,6 +141,23 @@ const Settings = () => {
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') return;
     setSnackbarOpen(false);
+  };
+
+  // Обновление выбранного языка в настройках пользователя
+  const handleLanguageChange = async (e) => {
+    const newLang = e.target.value;
+    setSelectedLanguage(newLang);
+    try {
+      await api.put('/user-setting', { selected_language_id: newLang });
+      setSnackbarMessage('Язык успешно изменён');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    } catch (err) {
+      console.error(err);
+      setSnackbarMessage('Ошибка при изменении языка');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
   };
 
   if (loading) {
@@ -214,6 +259,26 @@ const Settings = () => {
                   : ''
               }
             />
+          </div>
+
+          {/* Выпадающий список для выбора языка */}
+          <div className="user-field">
+            <FormControl fullWidth>
+              <InputLabel id="language-select-label">Язык</InputLabel>
+              <Select
+                labelId="language-select-label"
+                id="language-select"
+                value={selectedLanguage}
+                label="Язык"
+                onChange={handleLanguageChange}
+              >
+                {languagesList.map(lang => (
+                  <MenuItem key={lang.id} value={lang.id}>
+                    {lang.name} ({lang.code})
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </div>
 
           {/* Текстовая кнопка "Изменить пароль" */}

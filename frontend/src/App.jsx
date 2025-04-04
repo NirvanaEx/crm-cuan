@@ -14,6 +14,7 @@ import AdminRoles from "./pages/admin/AdminRoles";
 import AdminAccess from "./pages/admin/AdminAccess";
 import AdminSessions from "./pages/admin/AdminSessions";
 import AdminLogs from "./pages/admin/AdminLogs";
+import AdminLanguage from "./pages/admin/AdminLanguages";
 import Settings from './pages/Settings';
 
 function App() {
@@ -91,6 +92,12 @@ function App() {
                     <Route path="admin/logs" element={
                         <ProtectedRoute allowedPermissions={['log_read']}>
                             <AdminLogs />
+                        </ProtectedRoute>
+                    } />
+                    {/* Новый маршрут для управления языками */}
+                    <Route path="admin/language" element={
+                        <ProtectedRoute allowedPermissions={['language_read']}>
+                            <AdminLanguage />
                         </ProtectedRoute>
                     } />
                     <Route path="settings" element={

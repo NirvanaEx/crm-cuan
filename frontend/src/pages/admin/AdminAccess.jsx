@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
-import {
-  Button,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Snackbar,
-  Alert
+import { 
+  Button, 
+  TextField, 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions, 
+  Snackbar, 
+  Alert 
 } from '@mui/material';
 import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import UniversalTable from '../../components/UniversalTable';
@@ -18,15 +18,63 @@ import '../../css/admin/AdminAccess.css';
 export default function AdminAccess() {
   const { user: currentUser, permissions } = useContext(AuthContext);
   const [accessList, setAccessList] = useState([]);
+  const [languages, setLanguages] = useState([]);
   const [search, setSearch] = useState('');
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [newAccess, setNewAccess] = useState({ name: '' });
-  const [editAccess, setEditAccess] = useState({ id: null, name: '' });
+  const [newAccess, setNewAccess] = useState({
+    name: '',
+    translations: [] // Будет заполнено после загрузки языков
+  });
+  const [editAccess, setEditAccess] = useState({
+    id: null,
+    name: '',
+    translations: [] // Аналогично
+  });
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
+  // Получение списка языков
+  const fetchLanguages = async () => {
+    try {
+      const response = await api.get('/language');
+      setLanguages(response.data);
+    } catch (error) {
+      console.error('Ошибка при получении языков:', error);
+    }
+  };
+
+  // Получение списка доступов (все переводы)
+  const fetchAccessList = async () => {
+    try {
+      const response = await api.get('/access');
+      setAccessList(response.data);
+    } catch (error) {
+      console.error('Ошибка при получении списка доступов:', error);
+      showSnackbar('Ошибка при получении списка доступов', 'error');
+    }
+  };
+
+  useEffect(() => {
+    fetchLanguages();
+    fetchAccessList();
+  }, []);
+
+  // После загрузки языков инициализируем объект нового доступа
+  useEffect(() => {
+    if (languages.length) {
+      setNewAccess({
+        name: '',
+        translations: languages.map(lang => ({
+          language_id: lang.id,
+          description: ''
+        }))
+      });
+    }
+  }, [languages]);
+
+  // Функция уведомления
   const showSnackbar = (message, severity = 'success') => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
@@ -37,36 +85,43 @@ export default function AdminAccess() {
     setSnackbarOpen(false);
   };
 
-  const fetchAccessList = async () => {
-    try {
-      const response = await api.get('/access');
-      setAccessList(response.data);
-    } catch (error) {
-      console.error('Ошибка при получении доступа:', error);
-      showSnackbar('Ошибка при получении списка доступов', 'error');
-    }
-  };
-
-  useEffect(() => {
-    fetchAccessList();
-  }, []);
-
+  // Диалог добавления доступа
   const handleOpenAdd = () => setOpenAdd(true);
   const handleCloseAdd = () => {
     setOpenAdd(false);
-    setNewAccess({ name: '' });
+    setNewAccess({
+      name: '',
+      translations: languages.map(lang => ({ language_id: lang.id, description: '' }))
+    });
   };
 
+  // Диалог редактирования доступа: при открытии заполняем данные для всех языков
   const handleOpenEdit = (row) => {
-    setEditAccess({ id: row.id, name: row.name });
+    setEditAccess({
+      id: row.id,
+      name: row.name,
+      translations: languages.map(lang => ({
+        language_id: lang.id,
+        description: row.translations?.find(t => t.language_id === lang.id)?.description || ''
+      }))
+    });
     setOpenEdit(true);
   };
   const handleCloseEdit = () => setOpenEdit(false);
 
+  // Добавление доступа
   const handleAddAccess = async () => {
     if (!newAccess.name.trim()) {
       showSnackbar('Название доступа обязательно', 'error');
       return;
+    }
+    // Проверка заполненности полей переводов
+    for (const trans of newAccess.translations) {
+      if (!trans.description.trim()) {
+        const langObj = languages.find(l => l.id === trans.language_id);
+        showSnackbar(`Описание на ${langObj?.label || 'языке'} обязательно`, 'error');
+        return;
+      }
     }
     try {
       await api.post('/access', newAccess);
@@ -79,13 +134,21 @@ export default function AdminAccess() {
     }
   };
 
+  // Обновление доступа
   const handleEditAccess = async () => {
     if (!editAccess.name.trim()) {
       showSnackbar('Название доступа обязательно', 'error');
       return;
     }
+    for (const trans of editAccess.translations) {
+      if (!trans.description.trim()) {
+        const langObj = languages.find(l => l.id === trans.language_id);
+        showSnackbar(`Описание на ${langObj?.label || 'языке'} обязательно`, 'error');
+        return;
+      }
+    }
     try {
-      await api.put(`/access/${editAccess.id}`, { name: editAccess.name });
+      await api.put(`/access/${editAccess.id}`, editAccess);
       showSnackbar('Доступ обновлен', 'success');
       fetchAccessList();
       handleCloseEdit();
@@ -95,6 +158,7 @@ export default function AdminAccess() {
     }
   };
 
+  // Удаление доступа
   const handleDeleteAccess = async (row) => {
     const confirmDelete = window.confirm(`Удалить доступ "${row.name}"?`);
     if (confirmDelete) {
@@ -109,14 +173,19 @@ export default function AdminAccess() {
     }
   };
 
-  // Определение прав доступа для управления доступами
+  // Выбор описания согласно выбранному языку пользователя (из настроек)
+  const getDescriptionByLanguage = (translations) => {
+    const selectedLanguageId = currentUser?.selected_language_id || (languages[0] && languages[0].id);
+    const translation = translations?.find(t => t.language_id === selectedLanguageId);
+    return translation ? translation.description : '';
+  };
+
   const currentUserIsSuperadmin = () => {
     if (!currentUser || !currentUser.roles) return false;
     return currentUser.roles.some(r => r.name.toLowerCase() === 'superadmin');
   };
 
   const canCreateAccess = currentUserIsSuperadmin() || (permissions || []).includes('roleAccess_create');
-  // Для редактирования используем то же разрешение, что и для создания, если отдельного не предусмотрено
   const canUpdateAccess = currentUserIsSuperadmin() || (permissions || []).includes('roleAccess_create');
   const canDeleteAccess = currentUserIsSuperadmin() || (permissions || []).includes('roleAccess_delete');
 
@@ -151,8 +220,14 @@ export default function AdminAccess() {
       )
     },
     { key: 'id', label: 'ID', width: '5%' },
-    { key: 'name', label: 'Название доступа', width: '50%' },
-    { key: 'date_creation', label: 'Дата создания', width: '40%' }
+    { key: 'name', label: 'Название доступа', width: '25%' },
+    {
+      key: 'description',
+      label: 'Описание',
+      width: '40%',
+      render: (value, row) => getDescriptionByLanguage(row.translations)
+    },
+    { key: 'date_creation', label: 'Дата создания', width: '25%' }
   ];
 
   const filteredData = accessList.filter(a =>
@@ -178,8 +253,13 @@ export default function AdminAccess() {
           </Button>
         )}
       </div>
-      <UniversalTable columns={columns} data={filteredData} itemsPerPage={5} />
+      <UniversalTable 
+        columns={columns} 
+        data={filteredData} 
+        itemsPerPage={5} 
+      />
 
+      {/* Диалог добавления доступа */}
       <Dialog open={openAdd} onClose={handleCloseAdd} fullWidth maxWidth="sm">
         <DialogTitle>Добавить доступ</DialogTitle>
         <DialogContent>
@@ -189,8 +269,25 @@ export default function AdminAccess() {
             label="Название доступа"
             fullWidth
             value={newAccess.name}
-            onChange={(e) => setNewAccess({ name: e.target.value })}
+            onChange={(e) => setNewAccess({ ...newAccess, name: e.target.value })}
           />
+          {languages.map(lang => (
+            <TextField
+              key={lang.id}
+              margin="dense"
+              label={`Описание (${lang.name})`}
+              fullWidth
+              value={newAccess.translations.find(t => t.language_id === lang.id)?.description || ''}
+              onChange={(e) => {
+                const updatedTranslations = newAccess.translations.map(t =>
+                  t.language_id === lang.id 
+                    ? { ...t, description: e.target.value } 
+                    : t
+                );
+                setNewAccess({ ...newAccess, translations: updatedTranslations });
+              }}
+            />
+          ))}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseAdd}>Отмена</Button>
@@ -200,6 +297,7 @@ export default function AdminAccess() {
         </DialogActions>
       </Dialog>
 
+      {/* Диалог редактирования доступа */}
       <Dialog open={openEdit} onClose={handleCloseEdit} fullWidth maxWidth="sm">
         <DialogTitle>Редактировать доступ</DialogTitle>
         <DialogContent>
@@ -211,6 +309,23 @@ export default function AdminAccess() {
             value={editAccess.name}
             onChange={(e) => setEditAccess({ ...editAccess, name: e.target.value })}
           />
+          {languages.map(lang => (
+            <TextField
+              key={lang.id}
+              margin="dense"
+              label={`Описание (${lang.name})`}
+              fullWidth
+              value={editAccess.translations.find(t => t.language_id === lang.id)?.description || ''}
+              onChange={(e) => {
+                const updatedTranslations = editAccess.translations.map(t =>
+                  t.language_id === lang.id 
+                    ? { ...t, description: e.target.value } 
+                    : t
+                );
+                setEditAccess({ ...editAccess, translations: updatedTranslations });
+              }}
+            />
+          ))}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseEdit}>Отмена</Button>

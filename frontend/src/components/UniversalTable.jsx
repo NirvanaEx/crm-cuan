@@ -6,14 +6,15 @@ import '../css/UniversalTable.css';
 const UniversalTable = ({
   columns,
   data,
+  totalItems, // новое поле
   itemsPerPage = 5,
   onDelete,
   onEdit,
   onRowClick,
   currentPage: propCurrentPage,
   onPageChange,
-  hideEditIcon = false,    // если true — не показывать иконку редактирования
-  hideDeleteIcon = false   // если true — не показывать иконку удаления
+  hideEditIcon = false,
+  hideDeleteIcon = false
 }) => {
   const [currentPage, setCurrentPage] = useState(propCurrentPage || 1);
 
@@ -23,10 +24,11 @@ const UniversalTable = ({
     }
   }, [propCurrentPage]);
 
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  // Используем totalItems для расчёта количества страниц, если оно передано
+  const totalPages = totalItems ? Math.ceil(totalItems / itemsPerPage) : Math.ceil(data.length / itemsPerPage);
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
-  const currentData = data.slice(indexOfFirst, indexOfLast);
+  const currentData = totalItems ? data : data.slice(indexOfFirst, indexOfLast);
 
   const handlePrev = () => {
     const newPage = currentPage > 1 ? currentPage - 1 : currentPage;
@@ -45,7 +47,6 @@ const UniversalTable = ({
     else setCurrentPage(page);
   };
 
-  // Определяется, нужно ли отображать колонку с иконками действий.
   const showActions = (onEdit && !hideEditIcon) || (onDelete && !hideDeleteIcon);
   const totalColumns = columns.length + (showActions ? 1 : 0);
 
