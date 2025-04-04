@@ -6,9 +6,9 @@ exports.getAccessList = async () => {
     `SELECT a.id, a.name, a.date_creation, at.language_id, at.description
      FROM access a
      LEFT JOIN access_translation at ON a.id = at.access_id
-     WHERE a.data_status = 'active'`
+     WHERE a.data_status = 'active'
+     ORDER BY a.name ASC`
   );
-  // Группируем переводы по access.id
   const accessMap = {};
   rows.forEach(row => {
     if (!accessMap[row.id]) {
@@ -26,8 +26,10 @@ exports.getAccessList = async () => {
       });
     }
   });
-  return Object.values(accessMap);
+  // Преобразовать объект в массив и выполнить сортировку по name
+  return Object.values(accessMap).sort((a, b) => a.name.localeCompare(b.name));
 };
+
 
 exports.getAccessById = async (id) => {
   const [rows] = await db.execute(
