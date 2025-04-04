@@ -70,3 +70,26 @@ body.dark {
     border-radius: 8px;
     color: var(--text-color);
 }
+
+/* Толщина вертикальной полосы прокрутки */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px; /* для горизонтального скролла */
+}
+
+/* Трек (фоновая часть под ползунком) */
+::-webkit-scrollbar-track {
+    background-color: var(--bg-color); /* Подстраивается под тему */
+}
+
+/* Сам ползунок */
+::-webkit-scrollbar-thumb {
+    background-color: var(--accent-color); /* Или любой другой цвет, подходящий под тему */
+    border-radius: 4px;
+    border: 2px solid var(--bg-color); /* Чтобы между треком и ползунком оставалась граница в цвет фона */
+}
+
+/* Цвет при наведении */
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--sidebar-active-color); /* Или другой цвет для hover */
+}
