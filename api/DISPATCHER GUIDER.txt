@@ -1,6 +1,7 @@
-language: id (AUTO INCREMENT), code (varchar UNIQUE), name, date_creation;
+language: id (AUTO INCREMENT), code (varchar UNIQUE), name, date_creation, data_status (ENUM: active, deleted);
 user: id (AUTO INCREMENT), login, password, date_creation;
 user_info: id (AUTO INCREMENT), user_id, surname, name, patronym, phone, date_creation;
+user_setting: id (AUTO INCREMENT), user_id, selected_language_id, date_creation;
 user_token: id (AUTO INCREMENT), user_id, token, date_experied, date_creation, token_status (Enum: active, revoked);
 user_session: id (AUTO INCREMENT), user_token_id, device (text), ip_address, date_last_active, date_creation;
 user_status_history: id (AUTO INCREMENT), user_id, status (ENUM: active, banned, deleted), date_creation;

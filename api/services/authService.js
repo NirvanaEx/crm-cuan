@@ -19,7 +19,7 @@ exports.getUserFromToken = async (token) => {
     const [userRows] = await db.execute(
         `SELECT u.id, u.login, u.date_creation, ui.surname, ui.name, ui.patronym, ui.phone
          FROM \`user\` u
-                  LEFT JOIN user_info ui ON u.id = ui.user_id
+         LEFT JOIN user_info ui ON u.id = ui.user_id
          WHERE u.id = ?`,
         [tokenData.user_id]
     );
@@ -28,13 +28,13 @@ exports.getUserFromToken = async (token) => {
     }
     const userData = userRows[0];
 
-    // Проверка последнего статуса пользователя (если статус не active, авторизация невозможна)
+    // Проверка последнего статуса пользователя
     const [statusRows] = await db.execute(
         `SELECT status
          FROM user_status_history
          WHERE user_id = ?
          ORDER BY date_creation DESC
-             LIMIT 1`,
+         LIMIT 1`,
         [tokenData.user_id]
     );
     if (statusRows.length && statusRows[0].status !== 'active') {
@@ -45,7 +45,7 @@ exports.getUserFromToken = async (token) => {
     const [roleRows] = await db.execute(
         `SELECT r.id, r.name
          FROM users_role ur
-                  JOIN role r ON ur.role_id = r.id
+         JOIN role r ON ur.role_id = r.id
          WHERE ur.user_id = ?`,
         [tokenData.user_id]
     );
@@ -58,17 +58,25 @@ exports.getUserFromToken = async (token) => {
         const placeholders = roleIds.map(() => '?').join(',');
         const [accessRows] = await db.execute(
             `SELECT DISTINCT a.name
-         FROM role_access ra
-         JOIN access a ON ra.access_id = a.id
-         WHERE ra.role_id IN (${placeholders})`,
+             FROM role_access ra
+             JOIN access a ON ra.access_id = a.id
+             WHERE ra.role_id IN (${placeholders})`,
             roleIds
         );
         permissions = accessRows.map(a => a.name);
     }
     userData.permissions = permissions;
 
+    // Получаем настройки пользователя (например, выбранный язык)
+    const [settingRows] = await db.execute(
+        "SELECT selected_language_id FROM user_setting WHERE user_id = ?",
+        [tokenData.user_id]
+    );
+    userData.selected_language_id = settingRows.length ? settingRows[0].selected_language_id : null;
+
     return userData;
 };
+
 
 exports.login = async (login, password, device, ipAddress) => {
     const [rows] = await db.execute(

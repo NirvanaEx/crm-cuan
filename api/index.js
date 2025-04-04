@@ -18,6 +18,9 @@ const accessRoutes = require('./routes/accessRoutes');
 const roleAccessRoutes = require('./routes/roleAccessRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const userSettingRoutes = require('./routes/userSettingRoutes');
+const languageRoutes = require('./routes/languageRoutes');
+
 
 
 app.use('/api/users', authMiddleware, userRoutes);
@@ -27,6 +30,8 @@ app.use('/api/access', authMiddleware, accessRoutes);
 app.use('/api/role-access', authMiddleware, roleAccessRoutes);
 app.use('/api/sessions', authMiddleware, sessionRoutes);
 app.use('/api/profile', authMiddleware, profileRoutes);
+app.use('/api/user-setting', authMiddleware, userSettingRoutes);
+app.use('/api/language', authMiddleware, languageRoutes);
 
 const errorHandler = require('./middlewares/errorHandler');
 app.use(errorHandler);
