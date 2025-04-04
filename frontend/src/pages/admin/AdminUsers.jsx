@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import api from '../../services/api';
-import UniversalTable from '../../components/UniversalTable';
 import {
-  Button,
   TextField,
+  Button,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -14,8 +12,12 @@ import {
   MenuItem,
   useTheme,
   Snackbar,
-  Alert
+  Alert,
+  Box
 } from '@mui/material';
+import UniversalTable from '../../components/UniversalTable';
+import UniversalSearch from '../../components/UniversalSearch';
+import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import '../../css/admin/AdminUsers.css';
 
@@ -103,12 +105,9 @@ export default function AdminUsers() {
   const { user: currentUser, permissions } = useContext(AuthContext);
 
   const [users, setUsers] = useState([]);
-  const [search, setSearch] = useState('');
   const [roles, setRoles] = useState([]);
-
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-
   const [newUser, setNewUser] = useState({
     login: '',
     password: '',
@@ -118,7 +117,6 @@ export default function AdminUsers() {
     phone: '',
     roleId: ''
   });
-
   const [editUser, setEditUser] = useState({
     id: null,
     login: '',
@@ -129,10 +127,15 @@ export default function AdminUsers() {
     phone: '',
     roleId: ''
   });
-
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [searchParams, setSearchParams] = useState({
+    text: '',
+    field: '',
+    dateFrom: '',
+    dateTo: ''
+  });
 
   const showSnackbar = (message, severity = 'success') => {
     setSnackbarMessage(message);
@@ -140,9 +143,7 @@ export default function AdminUsers() {
     setSnackbarOpen(true);
   };
 
-  const handleCloseSnackbar = () => {
-    setSnackbarOpen(false);
-  };
+  const handleCloseSnackbar = () => setSnackbarOpen(false);
 
   useEffect(() => {
     fetchUsers();
@@ -169,18 +170,79 @@ export default function AdminUsers() {
     }
   };
 
-  const filteredUsers = users.filter((user) =>
-    Object.values(user).some((val) =>
-      String(val).toLowerCase().includes(search.toLowerCase())
-    )
-  );
+  // Динамическое формирование полей для поиска из столбцов таблицы
+  const baseColumns = [
+    { key: 'id', label: 'ID', width: '5%' },
+    { key: 'login', label: 'Логин', width: '15%' },
+    { key: 'role_name', label: 'Роль', width: '10%' },
+    {
+      key: 'fullName',
+      label: 'Ф.И.О',
+      width: '20%',
+      render: (_, row) => [row.surname, row.name, row.patronym].filter(Boolean).join(' ')
+    },
+    { key: 'phone', label: 'Телефон', width: '10%' },
+    { key: 'date_creation', label: 'Дата создания', width: '15%' }
+  ];
+
+
+  const statusColumn = {
+    key: 'status',
+    label: 'Статус',
+    width: '15%',
+    render: (value, row) => {
+      return currentUserIsSuperadmin() ? (
+        <StatusDropdown
+          initialStatus={value}
+          userId={row.id}
+          onStatusChange={fetchUsers}
+          showSnackbar={showSnackbar}
+        />
+      ) : (
+        <StatusBadge status={value} />
+      );
+    }
+  };
+
+  // Формирование списка полей для универсального поиска. Исключается статус.
+  const searchableFields = baseColumns.map(col => ({
+    value: col.key,
+    label: col.label
+  }));
+
+  const filteredUsers = users.filter((user) => {
+    const { text, field, dateFrom, dateTo } = searchParams;
+    let matchesText = true;
+    let matchesDate = true;
+
+    if (text && field) {
+      let value = '';
+      if (field === 'fullName') {
+        value = [user.surname, user.name, user.patronym].filter(Boolean).join(' ');
+      } else {
+        value = user[field] ? String(user[field]) : '';
+      }
+      matchesText = value.toLowerCase().includes(text.toLowerCase());
+    }
+
+    if (dateFrom || dateTo) {
+      const userDate = new Date(user.date_creation);
+      if (dateFrom) {
+        matchesDate = matchesDate && userDate >= new Date(dateFrom);
+      }
+      if (dateTo) {
+        matchesDate = matchesDate && userDate <= new Date(dateTo);
+      }
+    }
+
+    return matchesText && matchesDate;
+  });
 
   function currentUserIsSuperadmin() {
     if (!currentUser || !currentUser.roles) return false;
     return currentUser.roles.some((r) => r.name.toLowerCase() === 'superadmin');
   }
 
-  // Определяются права доступа для управления пользователями
   const canCreate = currentUserIsSuperadmin() || (permissions || []).includes('user_create');
   const canUpdate = currentUserIsSuperadmin() || (permissions || []).includes('user_update');
   const canDelete = currentUserIsSuperadmin() || (permissions || []).includes('user_delete');
@@ -241,7 +303,7 @@ export default function AdminUsers() {
     if (confirmDelete) {
       try {
         await api.delete(`/users/${row.id}`);
-        setUsers((prev) => prev.filter((u) => u.id !== row.id));
+        setUsers(prev => prev.filter(u => u.id !== row.id));
         showSnackbar('Пользователь удалён', 'success');
       } catch (error) {
         console.error('Ошибка при удалении пользователя:', error);
@@ -271,66 +333,13 @@ export default function AdminUsers() {
     }
   };
 
-  // Определяются базовые столбцы таблицы
-  const baseColumns = [
-    { key: 'id', label: 'ID', width: '5%' },
-    { key: 'login', label: 'Логин', width: '15%' },
-    { key: 'role_name', label: 'Роль', width: '10%' },
-    { 
-      key: 'fullName', 
-      label: 'Ф.И.О', 
-      width: '20%',
-      render: (_, row) => [row.surname, row.name, row.patronym].filter(Boolean).join(' ')
-    },
-    { key: 'phone', label: 'Телефон', width: '10%' },
-    { key: 'date_creation', label: 'Дата создания', width: '15%' }
-  ];
-
-  const statusColumn = {
-    key: 'status',
-    label: 'Статус',
-    width: '15%',
-    render: (value, row) => {
-      return currentUserIsSuperadmin() ? (
-        <StatusDropdown
-          initialStatus={value}
-          userId={row.id}
-          onStatusChange={fetchUsers}
-          showSnackbar={showSnackbar}
-        />
-      ) : (
-        <StatusBadge status={value} />
-      );
-    }
-  };
-
-  // Добавление столбца со статусом, если есть разрешение на просмотр
-  const columns = [...baseColumns];
-  if (canViewStatus) {
-    columns.push(statusColumn);
-  }
-
   return (
     <div className="admin-users-container">
       <h1>Управление пользователями</h1>
-
-      <div className="admin-users-actions">
-        <TextField
-          label="Поиск"
-          variant="outlined"
-          size="small"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: isDarkMode ? '#2b2b2b' : '#fff',
-              color: isDarkMode ? '#fff' : '#000'
-            },
-            marginRight: '10px',
-            width: '300px'
-          }}
-        />
-        {canCreate && (
+      <Box mb={2}>
+        <UniversalSearch fields={searchableFields} onSearch={setSearchParams} />
+      </Box>
+      {canCreate && (
           <Button
             variant="contained"
             onClick={handleOpenAdd}
@@ -344,17 +353,14 @@ export default function AdminUsers() {
             Добавить пользователя
           </Button>
         )}
-      </div>
-
       <UniversalTable
-        columns={columns}
+        columns={[...baseColumns, ...(canViewStatus ? [statusColumn] : [])]}
         data={filteredUsers}
         itemsPerPage={5}
         onDelete={canDelete ? handleDelete : null}
         onEdit={canUpdate ? handleOpenEdit : null}
         hideDeleteIcon={!canDelete}
       />
-
       <Dialog
         open={openAdd}
         onClose={handleCloseAdd}
@@ -370,14 +376,7 @@ export default function AdminUsers() {
         }}
       >
         <DialogTitle>Добавить пользователя</DialogTitle>
-        <DialogContent
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
-            marginTop: '10px'
-          }}
-        >
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
           <TextField
             label="Логин"
             value={newUser.login}
@@ -446,7 +445,6 @@ export default function AdminUsers() {
           </Button>
         </DialogActions>
       </Dialog>
-
       <Dialog
         open={openEdit}
         onClose={handleCloseEdit}
@@ -462,14 +460,7 @@ export default function AdminUsers() {
         }}
       >
         <DialogTitle>Редактировать пользователя</DialogTitle>
-        <DialogContent
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
-            marginTop: '10px'
-          }}
-        >
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
           <TextField
             label="Логин"
             value={editUser.login}
@@ -538,7 +529,6 @@ export default function AdminUsers() {
           </Button>
         </DialogActions>
       </Dialog>
-
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}

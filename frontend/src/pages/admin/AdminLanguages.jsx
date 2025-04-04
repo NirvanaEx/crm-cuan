@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert } from '@mui/material';
 import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import UniversalTable from '../../components/UniversalTable';
+import UniversalSearch from '../../components/UniversalSearch';
 import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import '../../css/admin/AdminLanguages.css';
@@ -9,7 +10,8 @@ import '../../css/admin/AdminLanguages.css';
 export default function AdminLanguage() {
   const { permissions } = useContext(AuthContext);
   const [languagesList, setLanguagesList] = useState([]);
-  const [search, setSearch] = useState('');
+  // Состояние старого поиска заменяем на универсальный поиск
+  // const [search, setSearch] = useState('');
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [newLanguage, setNewLanguage] = useState({ code: '', name: '' });
@@ -17,6 +19,14 @@ export default function AdminLanguage() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  // Состояние параметров поиска из UniversalSearch
+  const [searchParams, setSearchParams] = useState({
+    text: '',
+    field: 'name',
+    dateFrom: '',
+    dateTo: ''
+  });
 
   const showSnackbar = (message, severity = 'success') => {
     setSnackbarMessage(message);
@@ -100,11 +110,49 @@ export default function AdminLanguage() {
     }
   };
 
+  // Фильтрация списка языков на основе параметров поиска из UniversalSearch
+  const filteredData = languagesList.filter(lang => {
+    let matchesText = true;
+    let matchesDate = true;
+
+    if (searchParams.text && searchParams.field) {
+      let value = lang[searchParams.field];
+      if (searchParams.field === 'date_creation' && value) {
+        value = new Date(value).toLocaleDateString();
+      }
+      matchesText = String(value || '').toLowerCase().includes(searchParams.text.toLowerCase());
+    }
+
+    if (searchParams.dateFrom || searchParams.dateTo) {
+      if (lang.date_creation) {
+        const langDate = new Date(lang.date_creation);
+        if (searchParams.dateFrom) {
+          matchesDate = matchesDate && langDate >= new Date(searchParams.dateFrom);
+        }
+        if (searchParams.dateTo) {
+          matchesDate = matchesDate && langDate <= new Date(searchParams.dateTo);
+        }
+      } else {
+        matchesDate = false;
+      }
+    }
+
+    return matchesText && matchesDate;
+  });
+
+  // Список полей для поиска. Можно выбрать: ID, Код, Имя или Дата создания
+  const searchFields = [
+    { value: 'id', label: 'ID' },
+    { value: 'code', label: 'Код' },
+    { value: 'name', label: 'Имя' },
+    { value: 'date_creation', label: 'Дата создания' }
+  ];
+
   const columns = [
     {
       key: 'actions',
       label: '',
-      width: '10%',
+      width: '5%',
       render: (value, row) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <AiOutlineEdit
@@ -126,29 +174,20 @@ export default function AdminLanguage() {
         </div>
       )
     },
-    { key: 'id', label: 'ID', width: '10%' },
-    { key: 'code', label: 'Код', width: '30%' },
-    { key: 'name', label: 'Имя', width: '30%' },
+    { key: 'id', label: 'ID', width: '5%' },
+    { key: 'code', label: 'Код', width: '10%' },
+    { key: 'name', label: 'Имя', width: '50%' },
     { key: 'date_creation', label: 'Дата создания', width: '20%' }
   ];
-
-  const filteredData = languagesList.filter(lang =>
-    Object.values(lang).some(val =>
-      String(val).toLowerCase().includes(search.toLowerCase())
-    )
-  );
 
   return (
     <div className="admin-language-container">
       <h1>Управление языками</h1>
       <div className="admin-language-actions">
-        <input
-          type="text"
-          placeholder="Поиск..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="admin-language-search"
-        />
+        {/* Используем универсальный поиск */}
+        <UniversalSearch fields={searchFields} onSearch={setSearchParams} />
+      </div>
+      <div className="admin-language-add-button">
         <Button variant="contained" onClick={handleOpenAdd}>
           Добавить язык
         </Button>

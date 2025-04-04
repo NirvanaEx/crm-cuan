@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import UniversalTable from '../../components/UniversalTable';
+import UniversalSearch from '../../components/UniversalSearch';
 import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import '../../css/admin/AdminAccess.css';
@@ -19,7 +20,8 @@ export default function AdminAccess() {
   const { user: currentUser, permissions } = useContext(AuthContext);
   const [accessList, setAccessList] = useState([]);
   const [languages, setLanguages] = useState([]);
-  const [search, setSearch] = useState('');
+  // Состояние старого поиска больше не используется
+  // const [search, setSearch] = useState('');
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [newAccess, setNewAccess] = useState({
@@ -34,6 +36,14 @@ export default function AdminAccess() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  // Состояние параметров поиска через UniversalSearch
+  const [searchParams, setSearchParams] = useState({
+    text: '',
+    field: 'name',
+    dateFrom: '',
+    dateTo: ''
+  });
 
   // Получение списка языков
   const fetchLanguages = async () => {
@@ -177,6 +187,44 @@ export default function AdminAccess() {
   // Добавляем порядковый номер согласно порядку в массиве
   const dataWithOrder = accessList.map((item, index) => ({ ...item, order: index + 1 }));
 
+  // Список полей для поиска
+  const searchFields = [
+    { value: 'id', label: 'ID' },
+    { value: 'name', label: 'Название доступа' },
+    { value: 'date_creation', label: 'Дата создания' }
+  ];
+
+  // Фильтрация данных на основе параметров UniversalSearch
+  const filteredData = dataWithOrder.filter((access) => {
+    let matchesText = true;
+    let matchesDate = true;
+
+    if (searchParams.text && searchParams.field) {
+      let value = access[searchParams.field];
+      if (searchParams.field === 'date_creation' && value) {
+        value = new Date(value).toLocaleDateString();
+      }
+      matchesText = String(value || '').toLowerCase().includes(searchParams.text.toLowerCase());
+    }
+
+    if (searchParams.dateFrom || searchParams.dateTo) {
+      if (access.date_creation) {
+        const accessDate = new Date(access.date_creation);
+        if (searchParams.dateFrom) {
+          matchesDate = matchesDate && accessDate >= new Date(searchParams.dateFrom);
+        }
+        if (searchParams.dateTo) {
+          matchesDate = matchesDate && accessDate <= new Date(searchParams.dateTo);
+        }
+      } else {
+        matchesDate = false;
+      }
+    }
+
+    return matchesText && matchesDate;
+  });
+
+  // Колонки таблицы
   const columns = [
     {
       key: 'actions',
@@ -218,23 +266,14 @@ export default function AdminAccess() {
     { key: 'date_creation', label: 'Дата создания', width: '25%' }
   ];
 
-  const filteredData = dataWithOrder.filter(a =>
-    Object.values(a).some(val =>
-      String(val).toLowerCase().includes(search.toLowerCase())
-    )
-  );
-
   return (
     <div className="admin-access-container">
       <h1>Управление доступами</h1>
       <div className="admin-access-actions">
-        <input
-          type="text"
-          placeholder="Поиск..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="admin-access-search"
-        />
+        {/* Универсальный поиск */}
+        <UniversalSearch fields={searchFields} onSearch={setSearchParams} />
+      </div>
+      <div className="admin-access-add-button">
         {canCreateAccess && (
           <Button variant="contained" onClick={handleOpenAdd}>
             Добавить доступ

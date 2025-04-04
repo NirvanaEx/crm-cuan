@@ -3,6 +3,7 @@ import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, S
 import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import UniversalTable from '../../components/UniversalTable';
 import RoleAccessModal from '../../components/RoleAccessModal';
+import UniversalSearch from '../../components/UniversalSearch';
 import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import '../../css/admin/AdminRoles.css';
@@ -10,7 +11,6 @@ import '../../css/admin/AdminRoles.css';
 export default function AdminRoles() {
   const { user: currentUser, permissions } = useContext(AuthContext);
   const [roles, setRoles] = useState([]);
-  const [search, setSearch] = useState('');
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openRoleAccess, setOpenRoleAccess] = useState(false);
@@ -20,6 +20,14 @@ export default function AdminRoles() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+  // Параметры поиска
+  const [searchParams, setSearchParams] = useState({
+    text: '',
+    field: 'name',
+    dateFrom: '',
+    dateTo: ''
+  });
 
   const showSnackbar = (message, severity = 'success') => {
     setSnackbarMessage(message);
@@ -108,7 +116,7 @@ export default function AdminRoles() {
     setOpenRoleAccess(true);
   };
 
-  // Определение наличия доступа на основании разрешений или роли superadmin
+  // Определение доступа
   const currentUserIsSuperadmin = () => {
     if (!currentUser || !currentUser.roles) return false;
     return currentUser.roles.some((r) => r.name.toLowerCase() === 'superadmin');
@@ -153,23 +161,51 @@ export default function AdminRoles() {
     { key: 'date_creation', label: 'Дата создания', width: '40%' }
   ];
 
-  const filteredRoles = roles.filter(role =>
-    Object.values(role).some(val =>
-      String(val).toLowerCase().includes(search.toLowerCase())
-    )
-  );
+  // Фильтрация ролей по параметрам поиска
+  const filteredRoles = roles.filter((role) => {
+    let matchesText = true;
+    let matchesDate = true;
+
+    if (searchParams.text && searchParams.field) {
+      let value = role[searchParams.field];
+      if (searchParams.field === 'date_creation' && value) {
+        value = new Date(value).toLocaleDateString();
+      }
+      matchesText = String(value || '').toLowerCase().includes(searchParams.text.toLowerCase());
+    }
+
+    if (searchParams.dateFrom || searchParams.dateTo) {
+      if (role.date_creation) {
+        const roleDate = new Date(role.date_creation);
+        if (searchParams.dateFrom) {
+          matchesDate = matchesDate && roleDate >= new Date(searchParams.dateFrom);
+        }
+        if (searchParams.dateTo) {
+          matchesDate = matchesDate && roleDate <= new Date(searchParams.dateTo);
+        }
+      } else {
+        matchesDate = false;
+      }
+    }
+
+    return matchesText && matchesDate;
+  });
+
+  // Список полей для поиска
+  const searchFields = [
+    { value: 'id', label: 'ID' },
+    { value: 'name', label: 'Название роли' },
+    { value: 'date_creation', label: 'Дата создания' }
+  ];
 
   return (
     <div className="admin-roles-container">
       <h1>Управление ролями</h1>
       <div className="admin-roles-actions">
-        <input
-          type="text"
-          placeholder="Поиск..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="admin-roles-search"
-        />
+        {/* Универсальный поиск */}
+        <UniversalSearch fields={searchFields} onSearch={setSearchParams} />
+      </div>
+      <div className="admin-roles-add-button">
         {canCreateRole && (
           <Button variant="contained" onClick={handleOpenAdd}>
             Добавить роль

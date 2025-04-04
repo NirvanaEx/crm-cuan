@@ -1,0 +1,100 @@
+.universal-search-container {
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  /* Ряд, в котором располагаются поле поиска, селект и иконка */
+  .universal-search-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  /* Поле поиска:
+     - не растягивается на всю ширину
+     - автоматически подстраивается под содержимое
+     - минимальная ширина, чтобы не ломать вёрстку */
+  .search-textfield {
+    width: auto;
+    min-width: 150px;
+  }
+  
+  /* Селект */
+  .universal-search-select {
+    min-width: 150px;
+    width: 150px;
+  }
+  
+  /* Блок с датами — добавлен отступ сверху (например, 16px) */
+  .universal-search-date-picker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px; /* увеличенный отступ для наглядности */
+  }
+  
+  /* Унификация высоты элементов в ряду */
+  .universal-search-row .MuiTextField-root,
+  .universal-search-row .MuiFormControl-root,
+  .universal-search-row .MuiIconButton-root {
+    height: 40px;
+  }
+  
+  /* Аналогично для полей дат */
+  .universal-search-date-picker .MuiTextField-root {
+    height: 40px;
+    min-width: 120px;
+  }
+  
+  /* Цвет текста, рамок, лейблов — для тёмной темы
+     Использует ваши переменные var(--text-color), var(--accent-color) */
+  .universal-search-container .MuiInputBase-input {
+    color: var(--text-color) !important;
+  }
+  .universal-search-container .MuiInputLabel-root {
+    color: var(--text-color) !important;
+  }
+  .universal-search-container .MuiOutlinedInput-notchedOutline {
+    border-color: var(--text-color) !important;
+  }
+  /* Hover на поле */
+  .universal-search-container
+    .MuiOutlinedInput-root:hover
+    .MuiOutlinedInput-notchedOutline {
+    border-color: var(--accent-color) !important;
+  }
+  /* Фокус на поле */
+  .universal-search-container
+    .MuiOutlinedInput-root.Mui-focused
+    .MuiOutlinedInput-notchedOutline {
+    border-color: var(--accent-color) !important;
+  }
+  
+  /* Иконка календаря по умолчанию */
+  .universal-search-container .MuiIconButton-root .MuiSvgIcon-root {
+    color: var(--text-color) !important;
+  }
+  /* При наведении/нажатии */
+  .universal-search-container
+    .MuiIconButton-root:hover
+    .MuiSvgIcon-root,
+  .universal-search-container
+    .MuiIconButton-root:active
+    .MuiSvgIcon-root {
+    color: var(--accent-color) !important;
+  }
+  
+  /* Иконка календаря в type="date" (Chrome/Safari) */
+  .universal-search-container input[type="date"]::-webkit-calendar-picker-indicator {
+    color: var(--text-color);
+    filter: invert(0);
+  }
+  /* В тёмной теме можно инвертировать */
+  body.dark
+    .universal-search-container
+    input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+  
