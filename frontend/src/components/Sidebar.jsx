@@ -24,13 +24,13 @@ export default function Sidebar({ isOpen }) {
   ];
 
   const adminItems = [
-    { name: t('common:USERS'), icon: <FaUsers />, path: '/admin/users', requiredPermission: 'user_read' },
-    { name: t('common:ROLES'), icon: <FaUserShield />, path: '/admin/roles', requiredPermission: 'role_read' },
-    { name: t('common:ACCESS'), icon: <FaKey />, path: '/admin/access', requiredPermission: 'access_read' },
-    { name: t('common:SESSIONS'), icon: <FaClock />, path: '/admin/sessions', requiredPermission: 'session_read' },
-    { name: t('common:LOGS'), icon: <FaFileAlt />, path: '/admin/logs', requiredPermission: 'log_read' },
+    { name: t('common:USERS'), icon: <FaUsers />, path: '/admin/users', requiredPermission: 'user_pageView' },
+    { name: t('common:ROLES'), icon: <FaUserShield />, path: '/admin/roles', requiredPermission: 'role_pageView' },
+    { name: t('common:ACCESS'), icon: <FaKey />, path: '/admin/access', requiredPermission: 'access_pageView' },
+    { name: t('common:SESSIONS'), icon: <FaClock />, path: '/admin/sessions', requiredPermission: 'session_pageView' },
+    { name: t('common:LOGS'), icon: <FaFileAlt />, path: '/admin/logs', requiredPermission: 'log_pageView' },
     // Новый пункт для управления языками
-    { name: t('common:LANGUAGES'), icon: <FaLanguage />, path: '/admin/language', requiredPermission: 'language_read' },
+    { name: t('common:LANGUAGES'), icon: <FaLanguage />, path: '/admin/language', requiredPermission: 'language_pageView' },
   ];
 
   const settingsItem = { name: t('common:SETTINGS'), icon: <FaCog />, path: '/settings' };

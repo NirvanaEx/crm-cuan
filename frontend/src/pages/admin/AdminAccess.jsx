@@ -24,12 +24,12 @@ export default function AdminAccess() {
   const [openEdit, setOpenEdit] = useState(false);
   const [newAccess, setNewAccess] = useState({
     name: '',
-    translations: [] // Будет заполнено после загрузки языков
+    translations: []
   });
   const [editAccess, setEditAccess] = useState({
     id: null,
     name: '',
-    translations: [] // Аналогично
+    translations: []
   });
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -115,14 +115,6 @@ export default function AdminAccess() {
       showSnackbar('Название доступа обязательно', 'error');
       return;
     }
-    // Проверка заполненности полей переводов
-    for (const trans of newAccess.translations) {
-      if (!trans.description.trim()) {
-        const langObj = languages.find(l => l.id === trans.language_id);
-        showSnackbar(`Описание на ${langObj?.label || 'языке'} обязательно`, 'error');
-        return;
-      }
-    }
     try {
       await api.post('/access', newAccess);
       showSnackbar('Доступ добавлен', 'success');
@@ -139,13 +131,6 @@ export default function AdminAccess() {
     if (!editAccess.name.trim()) {
       showSnackbar('Название доступа обязательно', 'error');
       return;
-    }
-    for (const trans of editAccess.translations) {
-      if (!trans.description.trim()) {
-        const langObj = languages.find(l => l.id === trans.language_id);
-        showSnackbar(`Описание на ${langObj?.label || 'языке'} обязательно`, 'error');
-        return;
-      }
     }
     try {
       await api.put(`/access/${editAccess.id}`, editAccess);
@@ -189,6 +174,9 @@ export default function AdminAccess() {
   const canUpdateAccess = currentUserIsSuperadmin() || (permissions || []).includes('roleAccess_create');
   const canDeleteAccess = currentUserIsSuperadmin() || (permissions || []).includes('roleAccess_delete');
 
+  // Добавляем порядковый номер согласно порядку в массиве
+  const dataWithOrder = accessList.map((item, index) => ({ ...item, order: index + 1 }));
+
   const columns = [
     {
       key: 'actions',
@@ -219,7 +207,7 @@ export default function AdminAccess() {
         </div>
       )
     },
-    { key: 'id', label: 'ID', width: '5%' },
+    { key: 'order', label: '№', width: '5%', render: (value, row) => row.order },
     { key: 'name', label: 'Название доступа', width: '25%' },
     {
       key: 'description',
@@ -230,7 +218,7 @@ export default function AdminAccess() {
     { key: 'date_creation', label: 'Дата создания', width: '25%' }
   ];
 
-  const filteredData = accessList.filter(a =>
+  const filteredData = dataWithOrder.filter(a =>
     Object.values(a).some(val =>
       String(val).toLowerCase().includes(search.toLowerCase())
     )
@@ -256,10 +244,9 @@ export default function AdminAccess() {
       <UniversalTable 
         columns={columns} 
         data={filteredData} 
-        itemsPerPage={5} 
+        itemsPerPage={15} 
       />
 
-      {/* Диалог добавления доступа */}
       <Dialog open={openAdd} onClose={handleCloseAdd} fullWidth maxWidth="sm">
         <DialogTitle>Добавить доступ</DialogTitle>
         <DialogContent>
@@ -297,7 +284,6 @@ export default function AdminAccess() {
         </DialogActions>
       </Dialog>
 
-      {/* Диалог редактирования доступа */}
       <Dialog open={openEdit} onClose={handleCloseEdit} fullWidth maxWidth="sm">
         <DialogTitle>Редактировать доступ</DialogTitle>
         <DialogContent>

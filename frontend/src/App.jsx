@@ -70,33 +70,33 @@ function App() {
                         </ProtectedRoute>
                     } />
                     <Route path="admin/users" element={
-                        <ProtectedRoute allowedPermissions={['user_read']}>
+                        <ProtectedRoute allowedPermissions={['user_pageView']}>
                             <AdminUsers />
                         </ProtectedRoute>
                     } />
                     <Route path="admin/roles" element={
-                        <ProtectedRoute allowedPermissions={['role_read']}>
+                        <ProtectedRoute allowedPermissions={['role_pageView']}>
                             <AdminRoles />
                         </ProtectedRoute>
                     } />
                     <Route path="admin/access" element={
-                        <ProtectedRoute allowedPermissions={['access_read']}>
+                        <ProtectedRoute allowedPermissions={['access_pageView']}>
                             <AdminAccess />
                         </ProtectedRoute>
                     } />
                     <Route path="admin/sessions" element={
-                        <ProtectedRoute allowedPermissions={['session_read']}>
+                        <ProtectedRoute allowedPermissions={['session_pageView']}>
                             <AdminSessions />
                         </ProtectedRoute>
                     } />
                     <Route path="admin/logs" element={
-                        <ProtectedRoute allowedPermissions={['log_read']}>
+                        <ProtectedRoute allowedPermissions={['log_pageView']}>
                             <AdminLogs />
                         </ProtectedRoute>
                     } />
                     {/* Новый маршрут для управления языками */}
                     <Route path="admin/language" element={
-                        <ProtectedRoute allowedPermissions={['language_read']}>
+                        <ProtectedRoute allowedPermissions={['language_pageView']}>
                             <AdminLanguage />
                         </ProtectedRoute>
                     } />
