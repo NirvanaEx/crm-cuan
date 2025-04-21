@@ -20,8 +20,8 @@ const sessionRoutes = require('./routes/sessionRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const userSettingRoutes = require('./routes/userSettingRoutes');
 const languageRoutes = require('./routes/languageRoutes');
-
-
+const positionRoutes = require('./routes/employmentPositionRoutes');
+const employmentContractRoutes = require('./routes/employmentContractRoutes');
 
 app.use('/api/users', authMiddleware, userRoutes);
 app.use('/api/auth', authRoutes);
@@ -32,6 +32,8 @@ app.use('/api/sessions', authMiddleware, sessionRoutes);
 app.use('/api/profile', authMiddleware, profileRoutes);
 app.use('/api/user-setting', authMiddleware, userSettingRoutes);
 app.use('/api/language', authMiddleware, languageRoutes);
+app.use('/api/positions', authMiddleware, positionRoutes);
+app.use('/api/contracts', authMiddleware, employmentContractRoutes);
 
 const errorHandler = require('./middlewares/errorHandler');
 app.use(errorHandler);
