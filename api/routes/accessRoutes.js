@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const accessController = require('../controllers/accessController');
+const checkAccess = require('../middlewares/checkAccess');
 
 // Маршруты для работы с access
 router.get('/', checkAccess('access_read'), accessController.getAccessList);
