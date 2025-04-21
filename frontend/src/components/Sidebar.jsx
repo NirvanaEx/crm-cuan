@@ -1,139 +1,123 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaHome, FaQuestionCircle, FaCog, FaSignOutAlt, FaMoon, FaSun, FaLanguage, FaUsers, FaUserShield, FaKey, FaClock, FaFileAlt } from 'react-icons/fa';
+import {
+  FaHome, FaQuestionCircle, FaCog, FaSignOutAlt, FaMoon, FaSun, FaLanguage,
+  FaUsers, FaUserShield, FaKey, FaClock, FaFileAlt, FaBriefcase, FaFileContract
+} from 'react-icons/fa';
 import { ThemeContext } from '../context/ThemeContext';
 import { AuthContext } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import '../css/Sidebar.css';
 
 export default function Sidebar({ isOpen }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { t, i18n } = useTranslation(['sidebar', 'common']);
+  const navigate   = useNavigate();
+  const location   = useLocation();
+  const { t, i18n} = useTranslation(['sidebar','common']);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const { roles, permissions, logout } = useContext(AuthContext);
+
+  /* ---------------- локальный state ---------------- */
   const [activeItem, setActiveItem] = useState('');
 
-  useEffect(() => {
-    console.log('Permissions в Sidebar:', permissions);
-  }, [permissions]);
-
+  /* ---------------- пункты меню ---------------- */
   const userItems = [
-    { name: t('sidebar:DASHBOARD'), icon: <FaHome />, path: '/dashboard', requiredPermission: 'dashboard_view' },
-    { name: t('sidebar:QUESTIONS'), icon: <FaQuestionCircle />, path: '/questions', requiredPermission: 'questions_read' },
+    { name: t('sidebar:DASHBOARD'), icon:<FaHome/>, path:'/dashboard',  required:'dashboard_view'  },
+    { name: t('sidebar:QUESTIONS'), icon:<FaQuestionCircle/>, path:'/questions', required:'questions_read' }
   ];
 
   const adminItems = [
-    { name: t('common:USERS'), icon: <FaUsers />, path: '/admin/users', requiredPermission: 'user_pageView' },
-    { name: t('common:ROLES'), icon: <FaUserShield />, path: '/admin/roles', requiredPermission: 'role_pageView' },
-    { name: t('common:ACCESS'), icon: <FaKey />, path: '/admin/access', requiredPermission: 'access_pageView' },
-    { name: t('common:SESSIONS'), icon: <FaClock />, path: '/admin/sessions', requiredPermission: 'session_pageView' },
-    { name: t('common:LOGS'), icon: <FaFileAlt />, path: '/admin/logs', requiredPermission: 'log_pageView' },
-    // Новый пункт для управления языками
-    { name: t('common:LANGUAGES'), icon: <FaLanguage />, path: '/admin/language', requiredPermission: 'language_pageView' },
+    { name: t('common:USERS'),      icon:<FaUsers/>, path:'/admin/users',      required:'user_pageView' },
+    { name: t('common:ROLES'),      icon:<FaUserShield/>, path:'/admin/roles', required:'role_pageView' },
+    { name: t('common:ACCESS'),     icon:<FaKey/>, path:'/admin/access',       required:'access_pageView' },
+    { name: t('common:SESSIONS'),   icon:<FaClock/>, path:'/admin/sessions',   required:'session_pageView' },
+    { name: t('common:LOGS'),       icon:<FaFileAlt/>, path:'/admin/logs',     required:'log_pageView' },
+    { name: t('common:LANGUAGES'),  icon:<FaLanguage/>, path:'/admin/language', required:'language_pageView' }
   ];
 
-  const settingsItem = { name: t('common:SETTINGS'), icon: <FaCog />, path: '/settings' };
+  /* ---- НОВЫЙ РАЗДЕЛ ---- */
+  const employeeItems = [
+    { name: t('common:POSITIONS'), icon:<FaBriefcase/>,   path:'/employee/positions', required:'position_pageView' },
+    { name: t('common:CONTRACTS'), icon:<FaFileContract/>,path:'/employee/contracts', required:'contract_pageView' }
+  ];
 
-  useEffect(() => {
-    const allItems = [...userItems, ...adminItems, settingsItem];
-    const currentItem = allItems.find(item => location.pathname.includes(item.path));
-    if (currentItem) {
-      setActiveItem(currentItem.name);
-    }
-  }, [location, userItems, adminItems, settingsItem]);
+  const settingsItem = { name: t('common:SETTINGS'), icon:<FaCog/>, path:'/settings' };
 
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'en' ? 'ru' : 'en';
-    i18n.changeLanguage(newLang);
-  };
+  /* ------------- активный пункт ------------- */
+  useEffect(()=> {
+    const all = [...userItems, ...adminItems, ...employeeItems, settingsItem];
+    const cur = all.find(i => location.pathname.startsWith(i.path));
+    if (cur) setActiveItem(cur.name);
+  }, [location, userItems, adminItems, employeeItems, settingsItem]);
+
+  /* ------------- права ------------- */
+  const isSuperAdmin = roles?.some(r => r.name === 'superadmin');
+  const byPermission = arr =>
+    isSuperAdmin ? arr : arr.filter(i => (i.required ? permissions?.includes(i.required) : true));
+
+  const u    = byPermission(userItems);
+  const a    = byPermission(adminItems);
+  const emp  = byPermission(employeeItems);
+
+  /* ------------- handlers ------------- */
+  const toggleLanguage = () =>
+    i18n.changeLanguage(i18n.language === 'en' ? 'ru' : 'en');
 
   const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error("Ошибка при выходе:", error);
-    }
+    try { await logout(); navigate('/login'); }
+    catch(e) { console.error('Logout error', e); }
   };
 
-  const isSuperAdmin = roles && roles.some(role => role.name === 'superadmin');
+  /* ------------- шаблон отрисовки секции ------------- */
+  const renderSection = (title, items) => (
+    items.length > 0 && (
+      <>
+        {isOpen && <h4 className="sidebar-section-title">{title}</h4>}
+        <ul className="sidebar-menu">
+          {items.map(i=>(
+            <Link key={i.name} to={i.path} style={{textDecoration:'none',color:'inherit'}}>
+              <li className={activeItem===i.name ? 'active' : ''}>
+                {i.icon}
+                {isOpen && <span>{i.name}</span>}
+              </li>
+            </Link>
+          ))}
+        </ul>
+      </>
+    )
+  );
 
-  const filterItems = items => {
-    if (isSuperAdmin) {
-      return items;
-    }
-    return items.filter(item => {
-      if (item.requiredPermission) {
-        return (permissions || []).includes(item.requiredPermission);
-      }
-      return true;
-    });
-  };
-
-  const filteredUserItems = filterItems(userItems);
-  const filteredAdminItems = filterItems(adminItems);
-
+  /* ================= render ================= */
   return (
     <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
-      <div className="sidebar-logo">
-        <h2>DashStack</h2>
-      </div>
+      <div className="sidebar-logo"><h2>DashStack</h2></div>
 
-      {filteredUserItems.length > 0 && (
-        <>
-          {isOpen && <h4 className="sidebar-section-title">{t('sidebar:USER_SECTION')}</h4>}
-          <ul className="sidebar-menu">
-            {filteredUserItems.map(item => (
-              <Link to={item.path} key={item.name} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <li className={activeItem === item.name ? 'active' : ''}>
-                  {item.icon}
-                  {isOpen && <span>{item.name}</span>}
-                </li>
-              </Link>
-            ))}
-          </ul>
-        </>
-      )}
+      {renderSection(t('sidebar:USER_SECTION'),  u)}
+      {renderSection(t('sidebar:ADMIN_SECTION'), a)}
+      {renderSection(t('sidebar:EMPLOYEE_SECTION'), emp)}
 
-      {filteredAdminItems.length > 0 && (
-        <>
-          {isOpen && <h4 className="sidebar-section-title">{t('sidebar:ADMIN_SECTION')}</h4>}
-          <ul className="sidebar-menu">
-            {filteredAdminItems.map(item => (
-              <Link to={item.path} key={item.name} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <li className={activeItem === item.name ? 'active' : ''}>
-                  {item.icon}
-                  {isOpen && <span>{item.name}</span>}
-                </li>
-              </Link>
-            ))}
-          </ul>
-        </>
-      )}
-
+      {/* нижнее меню */}
       <ul className="sidebar-menu sidebar-bottom">
-        <Link to={settingsItem.path} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <li className={activeItem === settingsItem.name ? 'active' : ''}>
+        <Link to={settingsItem.path} style={{textDecoration:'none',color:'inherit'}}>
+          <li className={activeItem===settingsItem.name ? 'active' : ''}>
             {settingsItem.icon}
             {isOpen && <span>{settingsItem.name}</span>}
           </li>
         </Link>
-        <li className={activeItem === t('common:LOGOUT') ? 'active' : ''} onClick={handleLogout}>
-          <FaSignOutAlt />
+        <li onClick={handleLogout}>
+          <FaSignOutAlt/>
           {isOpen && <span>{t('common:LOGOUT')}</span>}
         </li>
       </ul>
 
+      {/* тема / язык */}
       {isOpen && (
         <ul className="sidebar-menu sidebar-bottom extra-settings">
           <li onClick={toggleTheme}>
-            {theme === 'light' ? <FaMoon /> : <FaSun />}
-            <span>{theme === 'light' ? t('sidebar:DARK_MODE') : t('sidebar:LIGHT_MODE')}</span>
+            {theme==='light' ? <FaMoon/> : <FaSun/>}
+            <span>{theme==='light' ? t('sidebar:DARK_MODE') : t('sidebar:LIGHT_MODE')}</span>
           </li>
           <li onClick={toggleLanguage}>
-            <FaLanguage />
-            <span>{(i18n.language || 'en').toUpperCase()}</span>
+            <FaLanguage/><span>{(i18n.language||'en').toUpperCase()}</span>
           </li>
         </ul>
       )}

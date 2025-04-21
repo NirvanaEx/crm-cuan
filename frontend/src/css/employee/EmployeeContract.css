@@ -1,0 +1,12 @@
+.employee-contract-container {
+    padding: 20px;
+  }
+  
+  .employee-contract-actions {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  /* Можно изменить стили таблицы, форм и кнопок */
+  

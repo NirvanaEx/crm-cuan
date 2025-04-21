@@ -16,6 +16,8 @@ import AdminSessions from "./pages/admin/AdminSessions";
 import AdminLogs from "./pages/admin/AdminLogs";
 import AdminLanguage from "./pages/admin/AdminLanguages";
 import Settings from './pages/Settings';
+import EmployeePosition from './pages/employee/EmployeePosition'; 
+import EmployeeContract from './pages/employee/EmployeeContract';
 
 function App() {
     const [progress, setProgress] = useState(0);
@@ -46,14 +48,26 @@ function App() {
         <LoadingProvider>
             <Routes>
                 <Route path="/login" element={<Login />} />
-                <Route
-                    path="/"
-                    element={
-                        <ProtectedRoute>
-                            <Layout />
+                    <Route
+                        path="/"
+                        element={
+                            <ProtectedRoute>
+                                <Layout />
+                            </ProtectedRoute>
+                        }
+                    >
+                    <Route path="employee/positions" element={
+                        <ProtectedRoute allowedPermissions={['position_pageView']}>
+                            <EmployeePosition />
                         </ProtectedRoute>
-                    }
-                >
+                        } 
+                    />
+                    <Route path="employee/contracts" element={
+                        <ProtectedRoute allowedPermissions={['contract_pageView']}>
+                            <EmployeeContract />
+                        </ProtectedRoute>
+                        }
+                    />
                     <Route index element={
                         <ProtectedRoute allowedPermissions={['dashboard_view']}>
                             <Dashboard />
