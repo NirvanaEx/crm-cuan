@@ -18,6 +18,7 @@ import AdminLanguage from "./pages/admin/AdminLanguages";
 import Settings from './pages/Settings';
 import EmployeePosition from './pages/employee/EmployeePosition'; 
 import EmployeeContract from './pages/employee/EmployeeContract';
+import EmployeeVerificationReqs  from './pages/employee/EmployeeVerificationRequests';
 
 function App() {
     const [progress, setProgress] = useState(0);
@@ -68,6 +69,12 @@ function App() {
                         </ProtectedRoute>
                         }
                     />
+                    <Route path="employee/verification-requests" element={
+                        <ProtectedRoute allowedPermissions={['verification_request_read']}>
+                            <EmployeeVerificationReqs/>
+                        </ProtectedRoute>
+                    } />
+                                        
                     <Route index element={
                         <ProtectedRoute allowedPermissions={['dashboard_view']}>
                             <Dashboard />

@@ -37,7 +37,9 @@ export default function Sidebar({ isOpen }) {
   /* ---- НОВЫЙ РАЗДЕЛ ---- */
   const employeeItems = [
     { name: t('common:POSITIONS'), icon:<FaBriefcase/>,   path:'/employee/positions', required:'position_pageView' },
-    { name: t('common:CONTRACTS'), icon:<FaFileContract/>,path:'/employee/contracts', required:'contract_pageView' }
+    { name: t('common:CONTRACTS'), icon:<FaFileContract/>,path:'/employee/contracts', required:'contract_pageView' },
+    { name: t('common:VERIFICATION_REQUESTS'), icon:<FaFileAlt/>, path:'/employee/verification-requests', required:'verification_request_read' } // ← NEW
+
   ];
 
   const settingsItem = { name: t('common:SETTINGS'), icon:<FaCog/>, path:'/settings' };

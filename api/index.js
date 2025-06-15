@@ -22,6 +22,8 @@ const userSettingRoutes = require('./routes/userSettingRoutes');
 const languageRoutes = require('./routes/languageRoutes');
 const positionRoutes = require('./routes/employmentPositionRoutes');
 const employmentContractRoutes = require('./routes/employmentContractRoutes');
+const verificationRequestRoutes = require('./routes/employmentVerificationRequestRoutes');
+const verificationPeriodRoutes  = require('./routes/employmentVerificationContractPeriodRoutes');
 
 app.use('/api/users', authMiddleware, userRoutes);
 app.use('/api/auth', authRoutes);
@@ -34,6 +36,13 @@ app.use('/api/user-setting', authMiddleware, userSettingRoutes);
 app.use('/api/language', authMiddleware, languageRoutes);
 app.use('/api/positions', authMiddleware, positionRoutes);
 app.use('/api/contracts', authMiddleware, employmentContractRoutes);
+app.use('/api/verification-requests', authMiddleware, verificationRequestRoutes);
+app.use(
+    '/api/verification-requests',
+    authMiddleware,
+    verificationRequestRoutes,
+    verificationPeriodRoutes
+  );
 
 const errorHandler = require('./middlewares/errorHandler');
 app.use(errorHandler);
