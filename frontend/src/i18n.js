@@ -16,8 +16,6 @@ const resources = {
             "LOGS": "Logs"
         },
         sidebar: {
-            "DASHBOARD": "Dashboard",
-            "QUESTIONS": "Questions",
             "DARK_MODE": "Dark Mode",
             "LIGHT_MODE": "Light Mode",
             "USER_SECTION": "User",
@@ -37,8 +35,6 @@ const resources = {
             "LOGS": "Логи"
         },
         sidebar: {
-            "DASHBOARD": "Панель",
-            "QUESTIONS": "Вопросы",
             "DARK_MODE": "Тёмный режим",
             "LIGHT_MODE": "Светлый режим",
             "USER_SECTION": "Пользователь",

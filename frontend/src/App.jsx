@@ -2,13 +2,11 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Layout from './components/Layout';
-import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import Preloader from './components/Preloader';
 import { ThemeContext } from './context/ThemeContext';
 import { LoadingProvider } from './context/LoadingContext';
-import Questions from "./pages/Questions";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminRoles from "./pages/admin/AdminRoles";
 import AdminAccess from "./pages/admin/AdminAccess";
@@ -57,21 +55,8 @@ function App() {
                     >
                 
                                         
-                    <Route index element={
-                        <ProtectedRoute allowedPermissions={['dashboard_view']}>
-                            <Dashboard />
-                        </ProtectedRoute>
-                    } />
-                    <Route path="dashboard" element={
-                        <ProtectedRoute allowedPermissions={['dashboard_view']}>
-                            <Dashboard />
-                        </ProtectedRoute>
-                    } />
-                    <Route path="questions" element={
-                        <ProtectedRoute allowedPermissions={['questions_read']}>
-                            <Questions />
-                        </ProtectedRoute>
-                    } />
+
+
                     <Route path="admin/users" element={
                         <ProtectedRoute allowedPermissions={['user_pageView']}>
                             <AdminUsers />

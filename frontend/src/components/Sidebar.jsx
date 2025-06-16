@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  FaHome, FaQuestionCircle, FaCog, FaSignOutAlt, FaMoon, FaSun, FaLanguage,
+  FaHome, FaCog, FaSignOutAlt, FaMoon, FaSun, FaLanguage,
   FaUsers, FaUserShield, FaKey, FaClock, FaFileAlt, FaBriefcase, FaFileContract
 } from 'react-icons/fa';
 import { ThemeContext } from '../context/ThemeContext';
@@ -19,11 +19,7 @@ export default function Sidebar({ isOpen }) {
   /* ---------------- локальный state ---------------- */
   const [activeItem, setActiveItem] = useState('');
 
-  /* ---------------- пункты меню ---------------- */
-  const userItems = [
-    { name: t('sidebar:DASHBOARD'), icon:<FaHome/>, path:'/dashboard',  required:'dashboard_view'  },
-    { name: t('sidebar:QUESTIONS'), icon:<FaQuestionCircle/>, path:'/questions', required:'questions_read' }
-  ];
+
 
   const adminItems = [
     { name: t('common:USERS'),      icon:<FaUsers/>, path:'/admin/users',      required:'user_pageView' },
@@ -40,17 +36,17 @@ export default function Sidebar({ isOpen }) {
 
   /* ------------- активный пункт ------------- */
   useEffect(()=> {
-    const all = [...userItems, ...adminItems,  settingsItem];
+    const all = [ ...adminItems,  settingsItem];
     const cur = all.find(i => location.pathname.startsWith(i.path));
     if (cur) setActiveItem(cur.name);
-  }, [location, userItems, adminItems,  settingsItem]);
+  }, [location, adminItems,  settingsItem]);
 
   /* ------------- права ------------- */
   const isSuperAdmin = roles?.some(r => r.name === 'superadmin');
   const byPermission = arr =>
     isSuperAdmin ? arr : arr.filter(i => (i.required ? permissions?.includes(i.required) : true));
 
-  const u    = byPermission(userItems);
+
   const a    = byPermission(adminItems);
 
   /* ------------- handlers ------------- */
@@ -86,7 +82,6 @@ export default function Sidebar({ isOpen }) {
     <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
       <div className="sidebar-logo"><h2>DashStack</h2></div>
 
-      {renderSection(t('sidebar:USER_SECTION'),  u)}
       {renderSection(t('sidebar:ADMIN_SECTION'), a)}
 
       {/* нижнее меню */}
