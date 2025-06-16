@@ -15,15 +15,12 @@ access_translation: id (AUTO INCREMENT), access_id, language_id, description, da
 role_access: id (AUTO INCREMENT), role_id, access_id, date_creation;
 users_role: id (AUTO INCREMENT), user_id, role_id, date_creation;
 
+file: id, file_path, date_creation;
+
 message: id (AUTO INCREMENT), message_text, date_creation;
 message_file: id (AUTO INCREMENT), file_id, message_id, date_creation;
 message_send: id (AUTO INCREMENT), user_id_sender, user_id_reciver, message_id, is_read (true,false), date_creation;
 
-employment_position: id, name, date_creation, data_status (ENUM: active, deleted);
-employment_position_translation: id, employment_position_id, language_id, name, date_creation;
-employment_contract_history: id, user_id, position_id, work_ratio (double), date_start, date_end, date_creation, data_status (ENUM: active, deleted);
-employment_verification_request: id, user_id, status (ENUM: pending, approved, canceled, rejected), date_update, date_creation;
-employment_verification_contract_period: id, verification_request_id, contract_history_id,  snapshot_date_start, snapshot_date_end, snapshot_work_ratio, date_creation;
 
 log: id (AUTO INCREMENT), user_id, action_name, date_creation;
 
