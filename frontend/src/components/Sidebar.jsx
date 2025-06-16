@@ -34,22 +34,16 @@ export default function Sidebar({ isOpen }) {
     { name: t('common:LANGUAGES'),  icon:<FaLanguage/>, path:'/admin/language', required:'language_pageView' }
   ];
 
-  /* ---- НОВЫЙ РАЗДЕЛ ---- */
-  const employeeItems = [
-    { name: t('common:POSITIONS'), icon:<FaBriefcase/>,   path:'/employee/positions', required:'position_pageView' },
-    { name: t('common:CONTRACTS'), icon:<FaFileContract/>,path:'/employee/contracts', required:'contract_pageView' },
-    { name: t('common:VERIFICATION_REQUESTS'), icon:<FaFileAlt/>, path:'/employee/verification-requests', required:'verification_request_read' } // ← NEW
 
-  ];
 
   const settingsItem = { name: t('common:SETTINGS'), icon:<FaCog/>, path:'/settings' };
 
   /* ------------- активный пункт ------------- */
   useEffect(()=> {
-    const all = [...userItems, ...adminItems, ...employeeItems, settingsItem];
+    const all = [...userItems, ...adminItems,  settingsItem];
     const cur = all.find(i => location.pathname.startsWith(i.path));
     if (cur) setActiveItem(cur.name);
-  }, [location, userItems, adminItems, employeeItems, settingsItem]);
+  }, [location, userItems, adminItems,  settingsItem]);
 
   /* ------------- права ------------- */
   const isSuperAdmin = roles?.some(r => r.name === 'superadmin');
@@ -58,7 +52,6 @@ export default function Sidebar({ isOpen }) {
 
   const u    = byPermission(userItems);
   const a    = byPermission(adminItems);
-  const emp  = byPermission(employeeItems);
 
   /* ------------- handlers ------------- */
   const toggleLanguage = () =>
@@ -95,7 +88,6 @@ export default function Sidebar({ isOpen }) {
 
       {renderSection(t('sidebar:USER_SECTION'),  u)}
       {renderSection(t('sidebar:ADMIN_SECTION'), a)}
-      {renderSection(t('sidebar:EMPLOYEE_SECTION'), emp)}
 
       {/* нижнее меню */}
       <ul className="sidebar-menu sidebar-bottom">
