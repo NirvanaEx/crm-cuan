@@ -1,0 +1,35 @@
+/* Dark theme fixes for Tabs */
+.MuiTabs-root {
+  background-color: var(--card-bg);
+}
+
+.MuiTab-root {
+  color: var(--text-color);
+}
+
+.MuiTab-root.Mui-selected {
+  color: var(--accent-color);
+}
+
+/* Table header */
+.universal-table th {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+/* Search + add-button layout (ваши предыдущие стили) */
+.actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+}
+.actions-row .universal-search {
+  flex: 1 1 300px;
+}
+.actions-row .add-button {
+  flex: 1 1 100%;
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+}

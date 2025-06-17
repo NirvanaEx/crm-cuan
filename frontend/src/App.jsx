@@ -15,6 +15,9 @@ import AdminLogs from "./pages/admin/AdminLogs";
 import AdminLanguage from "./pages/admin/AdminLanguages";
 import Settings from './pages/Settings';
 
+import CarBookings from './pages/car/CarBookings';
+import CarCategories from './pages/car/CarCategories';
+import CarModels from './pages/car/CarModels'
 
 function App() {
     const [progress, setProgress] = useState(0);
@@ -53,8 +56,6 @@ function App() {
                             </ProtectedRoute>
                         }
                     >
-                
-                                        
 
 
                     <Route path="admin/users" element={
@@ -93,6 +94,31 @@ function App() {
                             <Settings />
                         </ProtectedRoute>
                     } />
+
+                    <Route
+                        path="car-book"
+                        element={
+                        <ProtectedRoute allowedPermissions={['carBook_read']}>
+                            <CarBookings />
+                        </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="car-categories"
+                        element={
+                            <ProtectedRoute allowedPermissions={['carCategory_read']}>
+                            <CarCategories />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="car-models"
+                        element={
+                            <ProtectedRoute allowedPermissions={['car_read']}>
+                            <CarModels />
+                            </ProtectedRoute>
+                        }
+                    />
                     <Route path="*" element={<NotFound />} />
                 </Route>
             </Routes>

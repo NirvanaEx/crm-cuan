@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   FaHome, FaCog, FaSignOutAlt, FaMoon, FaSun, FaLanguage,
-  FaUsers, FaUserShield, FaKey, FaClock, FaFileAlt, FaBriefcase, FaFileContract
+  FaUsers, FaUserShield, FaKey, FaClock, FaFileAlt, FaBriefcase, FaLayerGroup, FaFileContract, FaCar
 } from 'react-icons/fa';
 import { ThemeContext } from '../context/ThemeContext';
 import { AuthContext } from '../context/AuthContext';
@@ -27,7 +27,11 @@ export default function Sidebar({ isOpen }) {
     { name: t('common:ACCESS'),     icon:<FaKey/>, path:'/admin/access',       required:'access_pageView' },
     { name: t('common:SESSIONS'),   icon:<FaClock/>, path:'/admin/sessions',   required:'session_pageView' },
     { name: t('common:LOGS'),       icon:<FaFileAlt/>, path:'/admin/logs',     required:'log_pageView' },
-    { name: t('common:LANGUAGES'),  icon:<FaLanguage/>, path:'/admin/language', required:'language_pageView' }
+    { name: t('common:LANGUAGES'),  icon:<FaLanguage/>, path:'/admin/language', required:'language_pageView' },
+    { name: t('common:CAR_BOOKINGS'), icon:<FaFileContract/>, path:'/car-book',       required:'carBook_read' },
+    { name: t('common:CAR_CATEGORIES'), icon:<FaLayerGroup/>,  path:'/car-categories', required:'carCategory_read' },
+    { name: t('common:CAR_MODELS'),     icon:<FaCar/>,         path:'/car-models',     required:'car_read' }
+
   ];
 
 

@@ -1,0 +1,18 @@
+/* src/css/car/CarCategories.css */
+
+.car-categories-container {
+  padding: 20px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.car-categories-container h1 {
+  margin-bottom: 20px;
+}
+
+.actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
