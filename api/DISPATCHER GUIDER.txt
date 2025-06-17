@@ -21,6 +21,9 @@ message: id (AUTO INCREMENT), message_text, date_creation;
 message_file: id (AUTO INCREMENT), file_id, message_id, date_creation;
 message_send: id (AUTO INCREMENT), user_id_sender, user_id_reciver, message_id, is_read (true,false), date_creation;
 
+car_category: id, name, date_creation, data_status (ENUM: active, deleted);
+car: id, car_category_id, model, number (text), data_status (ENUM: active, deleted);
+car_book: id, car_id, user_id, phone_number, purpose, route (text), date_start (DATETIME), date_expired (DATETIME), status (pending, approved, canceled, rejected), date_creation;
 
 log: id (AUTO INCREMENT), user_id, action_name, date_creation;
 

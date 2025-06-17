@@ -21,6 +21,10 @@ const profileRoutes = require('./routes/profileRoutes');
 const userSettingRoutes = require('./routes/userSettingRoutes');
 const languageRoutes = require('./routes/languageRoutes');
 
+const carCategoryRoutes = require('./routes/carCategoryRoutes');
+const carRoutes = require('./routes/carRoutes');
+const carBookRoutes = require('./routes/carBookRoutes');
+
 
 app.use('/api/users', authMiddleware, userRoutes);
 app.use('/api/auth', authRoutes);
@@ -31,6 +35,10 @@ app.use('/api/sessions', authMiddleware, sessionRoutes);
 app.use('/api/profile', authMiddleware, profileRoutes);
 app.use('/api/user-setting', authMiddleware, userSettingRoutes);
 app.use('/api/language', authMiddleware, languageRoutes);
+
+app.use('/api/car-categories', authMiddleware, carCategoryRoutes);
+app.use('/api/cars',            authMiddleware, carRoutes);
+app.use('/api/car-bookings', authMiddleware, carBookRoutes);
 
 const errorHandler = require('./middlewares/errorHandler');
 app.use(errorHandler);
