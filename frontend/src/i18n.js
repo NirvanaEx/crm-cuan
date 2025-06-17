@@ -24,7 +24,8 @@ const resources = {
       "CAR_SECTION": "Cars",               
       "CAR_BOOKINGS": "Car Bookings",      
       "CAR_CATEGORIES": "Car Categories",  
-      "CAR_MODELS": "Car Models"           
+      "CAR_MODELS": "Car Models",
+      "CAR_CALENDAR": "Calendar"          
     }
   },
   ru: {
@@ -48,7 +49,8 @@ const resources = {
       "CAR_SECTION": "Автомобили",         
       "CAR_BOOKINGS": "Бронирования",      
       "CAR_CATEGORIES": "Категории авто",  
-      "CAR_MODELS": "Модели авто"          
+      "CAR_MODELS": "Модели авто",
+      "CAR_CALENDAR": "Календарь"
     }
   }
 };

@@ -109,7 +109,7 @@ export default function CarCategories() {
 
   const columns = [
     {
-      key: 'actions', label: '', width: '8%',
+      key: 'actions', label: '', width: '5%',
       render: (_, row) => (
         <div style={{ display:'flex', alignItems:'center' }}>
           <AiOutlineEdit
@@ -127,9 +127,9 @@ export default function CarCategories() {
         </div>
       )
     },
-    { key:'id',            label:'ID',       width:'10%' },
+    { key:'id',            label:'ID',       width:'5%' },
     { key:'name',          label:'Name',     width:'60%' },
-    { key:'date_creation', label:'Created',  width:'25%' }
+    { key:'date_creation', label:'Created',  width:'30%' }
   ];
 
   const searchFields = [

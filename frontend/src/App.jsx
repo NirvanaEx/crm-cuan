@@ -18,6 +18,7 @@ import Settings from './pages/Settings';
 import CarBookings from './pages/car/CarBookings';
 import CarCategories from './pages/car/CarCategories';
 import CarModels from './pages/car/CarModels'
+import CalendarBookings from './pages/car/CalendarBookings';
 
 function App() {
     const [progress, setProgress] = useState(0);
@@ -107,7 +108,7 @@ function App() {
                         path="car-categories"
                         element={
                             <ProtectedRoute allowedPermissions={['carCategory_read']}>
-                            <CarCategories />
+                                <CarCategories />
                             </ProtectedRoute>
                         }
                     />
@@ -115,10 +116,19 @@ function App() {
                         path="car-models"
                         element={
                             <ProtectedRoute allowedPermissions={['car_read']}>
-                            <CarModels />
+                                <CarModels />
                             </ProtectedRoute>
                         }
                     />
+
+                    <Route path="car-calendar" 
+                        element={
+                            <ProtectedRoute allowedPermissions={['carBook_read']}>
+                                <CalendarBookings />
+                            </ProtectedRoute>
+                        }
+                    />
+
                     <Route path="*" element={<NotFound />} />
                 </Route>
             </Routes>

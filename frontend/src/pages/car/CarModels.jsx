@@ -117,7 +117,7 @@ export default function CarModels() {
 
   const columns = [
     {
-      key: 'actions', label: '', width: '8%',
+      key: 'actions', label: '', width: '5%',
       render: (_, row) => (
         <div style={{ display:'flex', alignItems:'center' }}>
           <AiOutlineEdit
