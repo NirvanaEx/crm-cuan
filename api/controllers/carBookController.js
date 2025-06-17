@@ -58,17 +58,39 @@ exports.getHistory = async (req, res, next) => {
  */
 exports.create = async (req, res, next) => {
   try {
-    const payload = {
-      ...req.body,
-      user_id: req.user.id
-    };
-    const { id } = await service.createBooking(payload);
-    res.status(201).json({ id });
+    const {
+      car_id,
+      phone_number,
+      purpose,
+      route,
+      date_start,
+      date_expired
+    } = req.body;
+    const user_id = req.user.id;
+
+    // Валидация: car_id должно быть числом
+    if (!car_id || isNaN(parseInt(car_id, 10))) {
+      return res.status(400).json({ error: 'Field car_id is required and must be a number' });
+    }
+    if (!phone_number || !date_start || !date_expired) {
+      return res.status(400).json({ error: 'Fields phone_number, date_start and date_expired are required' });
+    }
+
+    const result = await service.createBooking({
+      car_id: parseInt(car_id, 10),
+      user_id,
+      phone_number,
+      purpose,
+      route,
+      date_start,
+      date_expired
+    });
+
+    res.status(201).json(result);
   } catch (err) {
     next(err);
   }
 };
-
 /**
  * PUT /api/car-bookings/:id/status
  */
