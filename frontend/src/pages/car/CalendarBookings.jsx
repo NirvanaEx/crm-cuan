@@ -5,9 +5,16 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import allLocales from '@fullcalendar/core/locales-all';
 import {
-  Box, CircularProgress,
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, List, ListItem, ListItemText, Typography
+  Box,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  List,
+  ListItem,
+  ListItemText
 } from '@mui/material';
 import { format, isSameDay, compareAsc } from 'date-fns';
 import api from '../../services/api';
@@ -24,10 +31,10 @@ export default function CalendarBookings({
   const locale = calendarLocale || i18n.language;
   const { user } = useContext(AuthContext);
 
-  const [events, setEvents]           = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [dialogOpen, setDialogOpen]   = useState(false);
-  const [selectedDate, setSelectedDate]       = useState(null);
+  const [events, setEvents]         = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedDate, setSelectedDate]           = useState(null);
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
 
   useEffect(() => {
@@ -36,7 +43,19 @@ export default function CalendarBookings({
       api.get('/car-bookings/history', { params: { limit: 1000 } })
     ])
     .then(([activeRes, histRes]) => {
-      const all = [...activeRes.data.rows, ...histRes.data.rows];
+      const now = new Date();
+
+      // будущие/current approved
+      const activeApproved = activeRes.data.rows;
+
+      // из истории берём только прошедшие approved
+      const pastApproved = histRes.data.rows.filter(b =>
+        b.status === 'approved' &&
+        new Date(b.date_expired) < now
+      );
+
+      const all = [...activeApproved, ...pastApproved];
+
       const evs = all.map(b => ({
         id:    b.id,
         title: `${b.model} #${b.number}`,
@@ -44,6 +63,7 @@ export default function CalendarBookings({
         end:   new Date(b.date_expired),
         extendedProps: { ...b }
       }));
+
       setEvents(evs);
     })
     .catch(console.error)
@@ -58,7 +78,6 @@ export default function CalendarBookings({
     );
   }
 
-  // клик по дате — показываем диалог
   const handleDateClick = (arg) => {
     const day = arg.date;
     const dayEvents = events
@@ -69,7 +88,6 @@ export default function CalendarBookings({
     setDialogOpen(true);
   };
 
-  // рендерим число бронирований в ячейке
   const renderDayCell = (arg) => {
     const count = events.filter(e => isSameDay(e.start, arg.date)).length;
     return (
@@ -106,17 +124,23 @@ export default function CalendarBookings({
           right: ''
         }}
         events={events}
-        eventDisplay="none"            /* ! убираем синие полоски */
+        eventDisplay="none"
         dateClick={handleDateClick}
         dayCellContent={renderDayCell}
         height="100%"
         contentHeight="auto"
       />
 
-      {/* Диалог с деталями */}
-      <Dialog open={dialogOpen} onClose={()=>setDialogOpen(false)} fullWidth maxWidth="sm">
+      <Dialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
         <DialogTitle>
-          {format(selectedDate, 'dd.MM.yyyy')} — {selectedDayEvents.length} {selectedDayEvents.length === 1 ? 'booking' : 'bookings'}
+          {format(selectedDate, 'dd.MM.yyyy')} —{' '}
+          {selectedDayEvents.length}{' '}
+          {selectedDayEvents.length === 1 ? 'booking' : 'bookings'}
         </DialogTitle>
         <DialogContent dividers>
           <List>
@@ -134,7 +158,7 @@ export default function CalendarBookings({
           </List>
         </DialogContent>
         <DialogActions>
-          <Button onClick={()=>setDialogOpen(false)}>Close</Button>
+          <Button onClick={() => setDialogOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
     </Box>
