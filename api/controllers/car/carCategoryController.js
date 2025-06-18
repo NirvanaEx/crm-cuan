@@ -1,4 +1,4 @@
-// controllers/carCategoryController.js
+// controllers/car/carCategoryController.js
 const service = require('../../services/car/carCategoryService');
 
 exports.list = async (req, res, next) => {

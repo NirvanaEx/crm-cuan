@@ -1,4 +1,4 @@
-// services/carCategoryService.js
+// services/car/carCategoryService.js
 const db = require('../../config/db');
 
 exports.listCategories = async () => {
