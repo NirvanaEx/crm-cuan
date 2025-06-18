@@ -2,7 +2,7 @@
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const sessionService = require('./sessionService');
+const sessionService = require('./admin/sessionService');
 
 exports.getUserFromToken = async (token) => {
     // Проверяем наличие активного токена

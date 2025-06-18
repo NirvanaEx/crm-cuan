@@ -10,32 +10,47 @@ app.use(cors({
 
 app.use(express.json());
 
+/*Подключение файлов*/
 const authMiddleware = require('./middlewares/authMiddleware');
-const userRoutes = require('./routes/userRoutes');
+
+//Авторизация
 const authRoutes = require('./routes/authRoutes');
-const roleRoutes = require('./routes/roleRoutes');
-const accessRoutes = require('./routes/accessRoutes');
-const roleAccessRoutes = require('./routes/roleAccessRoutes');
-const sessionRoutes = require('./routes/sessionRoutes');
-const profileRoutes = require('./routes/profileRoutes');
-const userSettingRoutes = require('./routes/userSettingRoutes');
-const languageRoutes = require('./routes/languageRoutes');
 
-const carCategoryRoutes = require('./routes/carCategoryRoutes');
-const carRoutes = require('./routes/carRoutes');
-const carBookRoutes = require('./routes/carBookRoutes');
+//Админ
+const userRoutes = require('./routes/admin/userRoutes');
+const roleRoutes = require('./routes/admin/roleRoutes');
+const accessRoutes = require('./routes/admin/accessRoutes');
+const roleAccessRoutes = require('./routes/admin/roleAccessRoutes');
+const sessionRoutes = require('./routes/admin/sessionRoutes');
+const languageRoutes = require('./routes/admin/languageRoutes');
+
+//Профиль пользователя
+const profileRoutes = require('./routes/profile/profileRoutes');
+const userSettingRoutes = require('./routes/profile/userSettingRoutes');
+
+//Бронирование авто
+const carCategoryRoutes = require('./routes/car/carCategoryRoutes');
+const carRoutes = require('./routes/car/carRoutes');
+const carBookRoutes = require('./routes/car/carBookRoutes');
 
 
-app.use('/api/users', authMiddleware, userRoutes);
+/*Роуты*/
+//Авторизация
 app.use('/api/auth', authRoutes);
+
+//Админ
+app.use('/api/users', authMiddleware, userRoutes);
 app.use('/api/roles', authMiddleware, roleRoutes);
 app.use('/api/access', authMiddleware, accessRoutes);
 app.use('/api/role-access', authMiddleware, roleAccessRoutes);
 app.use('/api/sessions', authMiddleware, sessionRoutes);
-app.use('/api/profile', authMiddleware, profileRoutes);
-app.use('/api/user-setting', authMiddleware, userSettingRoutes);
 app.use('/api/language', authMiddleware, languageRoutes);
 
+//Профиль пользователя
+app.use('/api/profile', authMiddleware, profileRoutes);
+app.use('/api/user-setting', authMiddleware, userSettingRoutes);
+
+//Бронирование авто
 app.use('/api/car-categories', authMiddleware, carCategoryRoutes);
 app.use('/api/cars',            authMiddleware, carRoutes);
 app.use('/api/car-bookings', authMiddleware, carBookRoutes);
