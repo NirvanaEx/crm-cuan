@@ -99,7 +99,7 @@ function App() {
                     <Route
                         path="car-book"
                         element={
-                        <ProtectedRoute allowedPermissions={['carBook_read']}>
+                        <ProtectedRoute allowedPermissions={['carBook_pageView']}>
                             <CarBookings />
                         </ProtectedRoute>
                         }
@@ -107,7 +107,7 @@ function App() {
                     <Route
                         path="car-categories"
                         element={
-                            <ProtectedRoute allowedPermissions={['carCategory_read']}>
+                            <ProtectedRoute allowedPermissions={['carCategory_pageView']}>
                                 <CarCategories />
                             </ProtectedRoute>
                         }
@@ -115,7 +115,7 @@ function App() {
                     <Route
                         path="car-models"
                         element={
-                            <ProtectedRoute allowedPermissions={['car_read']}>
+                            <ProtectedRoute allowedPermissions={['car_pageView']}>
                                 <CarModels />
                             </ProtectedRoute>
                         }
@@ -123,7 +123,7 @@ function App() {
 
                     <Route path="car-calendar" 
                         element={
-                            <ProtectedRoute allowedPermissions={['carBook_read']}>
+                            <ProtectedRoute allowedPermissions={['carBookCalendar_pageView']}>
                                 <CalendarBookings />
                             </ProtectedRoute>
                         }

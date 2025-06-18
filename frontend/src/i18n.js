@@ -22,9 +22,9 @@ const resources = {
       "USER_SECTION": "User",
       "ADMIN_SECTION": "Admin",
       "CAR_SECTION": "Cars",               
-      "CAR_BOOKINGS": "Car Bookings",      
-      "CAR_CATEGORIES": "Car Categories",  
-      "CAR_MODELS": "Car Models",
+      "CAR_BOOKINGS": "Bookings",      
+      "CAR_CATEGORIES": "Categories",  
+      "CAR_MODELS": "Models",
       "CAR_CALENDAR": "Calendar"          
     }
   },

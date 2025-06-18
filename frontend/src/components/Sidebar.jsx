@@ -30,10 +30,10 @@ export default function Sidebar({ isOpen }) {
   ];
 
   const carItems = [
-    { name: t('sidebar:CAR_BOOKINGS'),    icon: <FaFileContract/>, path: '/car-book',       required: 'carBook_read' },
-    { name: t('sidebar:CAR_CATEGORIES'),  icon: <FaLayerGroup/>,    path: '/car-categories', required: 'carCategory_read' },
-    { name: t('sidebar:CAR_MODELS'),      icon: <FaCar/>,           path: '/car-models',     required: 'car_read' },
-    { name: t('sidebar:CAR_CALENDAR'),    icon: <FaClock/>,         path: '/car-calendar',   required: 'carBook_read' }
+    { name: t('sidebar:CAR_BOOKINGS'),    icon: <FaFileContract/>, path: '/car-book',       required: 'carBook_pageView' },
+    { name: t('sidebar:CAR_CATEGORIES'),  icon: <FaLayerGroup/>,    path: '/car-categories', required: 'carCategory_pageView' },
+    { name: t('sidebar:CAR_MODELS'),      icon: <FaCar/>,           path: '/car-models',     required: 'car_pageView' },
+    { name: t('sidebar:CAR_CALENDAR'),    icon: <FaClock/>,         path: '/car-calendar',   required: 'carBookCalendar_pageView' }
   ];
 
   const settingsItem = { name: t('common:SETTINGS'), icon: <FaCog/>, path: '/settings' };
