@@ -1,4 +1,4 @@
-// controllers/carBookController.js
+// controllers/car/carBookController.js
 const service = require('../../services/car/carBookService');
 
 /**

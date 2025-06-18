@@ -1,4 +1,4 @@
-// routes/carBookRoutes.js
+// routes/car/carBookRoutes.js
 const express     = require('express');
 const router      = express.Router();
 const ctrl        = require('../../controllers/car/carBookController');
