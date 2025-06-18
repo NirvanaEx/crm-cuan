@@ -1,242 +1,284 @@
 // src/pages/car/CarModels.jsx
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import {
-  Button, TextField, Dialog, DialogTitle,
-  DialogContent, DialogActions, Snackbar, Alert,
-  FormControl, InputLabel, Select, MenuItem
+  Box,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Snackbar,
+  Alert
 } from '@mui/material';
-import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
-import UniversalTable  from '../../components/UniversalTable';
+import UniversalTable from '../../components/UniversalTable';
 import UniversalSearch from '../../components/UniversalSearch';
-import api             from '../../services/api';
+import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import '../../css/car/CarModels.css';
 
 export default function CarModels() {
   const { user } = useContext(AuthContext);
-  const [models, setModels] = useState([]);
+
+  // state for categories and table data
   const [categories, setCategories] = useState([]);
-  const [searchParams, setSearchParams] = useState({
-    text: '', field: 'model', dateFrom: '', dateTo: ''
-  });
-  const [openAdd, setOpenAdd]   = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
-  const [newItem, setNewItem]   = useState({
-    car_category_id: '', model: '', number: ''
+  const [models, setModels]         = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
+
+  // pagination state
+  const [page, setPage]       = useState(1);
+  const itemsPerPage          = 10;
+
+  // search & filter state
+  const [searchText, setSearchText]   = useState('');
+  const [searchField, setSearchField] = useState('model');
+  const [dateFrom, setDateFrom]       = useState('');
+  const [dateTo, setDateTo]           = useState('');
+
+  // dialog state
+  const [openAdd, setOpenAdd]     = useState(false);
+  const [openEdit, setOpenEdit]   = useState(false);
+
+  // form state for add/edit
+  const [newItem, setNewItem] = useState({
+    car_category_id: '',
+    model: '',
+    number: ''
   });
   const [editItem, setEditItem] = useState({
-    id: null, car_category_id: '', model: '', number: '', data_status: ''
-  });
-  const [snackbar, setSnackbar] = useState({
-    open: false, message: '', severity: 'success'
+    id: null,
+    car_category_id: '',
+    model: '',
+    number: ''
   });
 
-  // Load models and categories
-  const fetchData = async () => {
+  // snackbar state
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+
+  // load categories once
+  useEffect(() => {
+    api.get('/car-categories')
+      .then(res => {
+        const cats = Array.isArray(res.data) ? res.data : [];
+        setCategories(cats);
+      })
+      .catch(() => {
+        setSnackbar({ open: true, message: 'Failed to load categories', severity: 'error' });
+      });
+  }, []);
+
+  // fetch models page with filters
+  const fetchModels = useCallback(async () => {
     try {
-      const [mRes, cRes] = await Promise.all([
-        api.get('/cars'),
-        api.get('/car-categories')
-      ]);
-      setModels(mRes.data);
-      setCategories(cRes.data);
-    } catch (err) {
-      console.error('Failed to load data', err);
-      showSnackbar('Ошибка загрузки данных', 'error');
+      const res = await api.get('/cars', {
+        params: {
+          page,
+          limit: itemsPerPage,
+          search: searchText,
+          searchField,
+          dateFrom,
+          dateTo
+        }
+      });
+      const rows = res.data.rows || [];
+      setTotalItems(res.data.total || 0);
+      setModels(rows.map((item, idx) => ({
+        no: (page - 1) * itemsPerPage + idx + 1,
+        ...item
+      })));
+    } catch {
+      setSnackbar({ open: true, message: 'Failed to load models', severity: 'error' });
     }
+  }, [page, searchText, searchField, dateFrom, dateTo]);
+
+  // initial & reactive data load
+  useEffect(() => {
+    fetchModels();
+  }, [fetchModels]);
+
+  const showSnackbar = (msg, sev = 'success') => {
+    setSnackbar({ open: true, message: msg, severity: sev });
+  };
+  const closeSnackbar = () => {
+    setSnackbar(s => ({ ...s, open: false }));
   };
 
-  useEffect(() => { fetchData(); }, []);
-
-  const showSnackbar = (msg, sev='success') =>
-    setSnackbar({ open: true, message: msg, severity: sev });
-  const closeSnackbar = () =>
-    setSnackbar(s => ({ ...s, open: false }));
-
-  // Create new car model
-  const handleAdd = async () => {
+  // create new model
+  const handleCreate = async () => {
     const { car_category_id, model, number } = newItem;
     if (!car_category_id || !model.trim() || !number.trim()) {
-      showSnackbar('Все поля обязательны', 'error');
-      return;
+      return showSnackbar('All fields are required', 'error');
     }
     try {
-      await api.post('/cars', { ...newItem });
-      showSnackbar('Модель добавлена');
-      fetchData();
+      await api.post('/cars', newItem);
+      showSnackbar('Model added');
       setOpenAdd(false);
-      setNewItem({ car_category_id:'', model:'', number:'' });
-    } catch (err) {
-      console.error('Error creating model', err);
-      showSnackbar('Ошибка создания', 'error');
+      setNewItem({ car_category_id: '', model: '', number: '' });
+      setPage(1);
+      fetchModels();
+    } catch {
+      showSnackbar('Failed to add model', 'error');
     }
   };
 
-  // Update existing car model
-  const handleEdit = async () => {
-    const { id, car_category_id, model, number, data_status } = editItem;
-    if (!car_category_id || !model.trim() || !number.trim()) {
-      showSnackbar('Все поля обязательны', 'error');
-      return;
-    }
+  // update existing model
+  const handleUpdate = async () => {
+    const { id, car_category_id, model, number } = editItem;
     try {
-      await api.put(`/cars/${id}`, { car_category_id, model, number, data_status });
-      showSnackbar('Модель обновлена');
-      fetchData();
+      await api.put(`/cars/${id}`, { car_category_id, model, number });
+      showSnackbar('Model updated');
       setOpenEdit(false);
-    } catch (err) {
-      console.error('Error updating model', err);
-      showSnackbar('Ошибка обновления', 'error');
+      fetchModels();
+    } catch {
+      showSnackbar('Failed to update model', 'error');
     }
   };
 
-  // Delete (soft) car model
-  const handleDelete = async (row) => {
-    if (!window.confirm(`Удалить модель "${row.model}"?`)) return;
+  // delete model
+  const handleDelete = async row => {
+    if (!window.confirm(`Delete model "${row.model}"?`)) return;
     try {
       await api.delete(`/cars/${row.id}`);
-      showSnackbar('Модель удалена');
-      fetchData();
-    } catch (err) {
-      console.error('Error deleting model', err);
-      showSnackbar('Ошибка удаления', 'error');
+      showSnackbar('Model deleted');
+      // adjust page if last item removed
+      if (models.length === 1 && page > 1) {
+        setPage(page - 1);
+      } else {
+        fetchModels();
+      }
+    } catch {
+      showSnackbar('Failed to delete model', 'error');
     }
   };
 
-  // Apply search filters
-  const filtered = models.filter(item => {
-    let okText = true, okDate = true;
-    if (searchParams.text) {
-      okText = String(item[searchParams.field] || '')
-        .toLowerCase()
-        .includes(searchParams.text.toLowerCase());
-    }
-    // no date filter on models
-    return okText && okDate;
-  });
+  // stable callback for search component
+  const handleSearch = useCallback(({ text, field, dateFrom: df, dateTo: dt }) => {
+    setSearchText(text);
+    setSearchField(field);
+    setDateFrom(df);
+    setDateTo(dt);
+    setPage(1);
+  }, []);
 
+  // table column definitions
   const columns = [
+    { key: 'no',            label: '№',         width: '5%'  },
+    { key: 'category_name', label: 'Category',  width: '20%' },
+    { key: 'model',         label: 'Model',     width: '25%' },
+    { key: 'number',        label: 'Number',    width: '20%' },
     {
-      key: 'actions', label: '', width: '5%',
-      render: (_, row) => (
-        <div style={{ display:'flex', alignItems:'center' }}>
-          <AiOutlineEdit
-            size={20} style={{ cursor:'pointer', marginRight:5 }}
-            onClick={e => {
-              e.stopPropagation();
-              setEditItem({
-                id: row.id,
-                car_category_id: row.car_category_id,
-                model: row.model,
-                number: row.number,
-                data_status: row.data_status
-              });
-              setOpenEdit(true);
-            }}
-          />
-          <AiOutlineDelete
-            size={20} style={{ cursor:'pointer' }}
-            onClick={e => { e.stopPropagation(); handleDelete(row); }}
-          />
-        </div>
-      )
-    },
-    { key:'id',              label:'ID',             width:'5%' },
-    { key:'car_category_id', label:'Category ID',    width:'15%' },
-    { key:'model',           label:'Model',          width:'25%' },
-    { key:'number',          label:'Number',         width:'20%' },
-    { key:'data_status',     label:'Status',         width:'15%' }
+      key: 'date_creation',
+      label: 'Created',
+      width: '30%',
+      render: v => new Date(v).toLocaleString('ru-RU', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      })
+    }
   ];
 
   const searchFields = [
-    { value:'model', label:'Model' },
-    { value:'number',label:'Number' }
+    { value: 'model',  label: 'Model'  },
+    { value: 'number', label: 'Number' }
   ];
 
   return (
     <div className="car-models-container">
       <h1>Car Models</h1>
 
-      <div className="actions-row">
-        <UniversalSearch fields={searchFields} onSearch={setSearchParams} />
-        <Button variant="contained" onClick={()=>setOpenAdd(true)}>
+      <UniversalSearch
+        fields={searchFields}
+        onSearch={handleSearch}
+      />
+
+      {/* Add button below search */}
+      <Box mt={2} mb={2}>
+        <Button variant="contained" onClick={() => setOpenAdd(true)}>
           Add Model
         </Button>
-      </div>
+      </Box>
 
-      <UniversalTable columns={columns} data={filtered} itemsPerPage={5} />
+      {/* data table with pagination */}
+      <UniversalTable
+        columns={columns}
+        data={models}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        currentPage={page}
+        onPageChange={setPage}
+        onEdit={row => { setEditItem(row); setOpenEdit(true); }}
+        onDelete={handleDelete}
+      />
 
-      {/* Add Dialog */}
-      <Dialog open={openAdd} onClose={()=>setOpenAdd(false)} fullWidth maxWidth="sm">
+      {/* Add Model Dialog */}
+      <Dialog open={openAdd} onClose={() => setOpenAdd(false)} fullWidth maxWidth="sm">
         <DialogTitle>Add Car Model</DialogTitle>
         <DialogContent>
           <FormControl fullWidth margin="dense">
             <InputLabel>Category</InputLabel>
             <Select
               value={newItem.car_category_id}
-              onChange={e=>setNewItem({...newItem, car_category_id: e.target.value})}
+              onChange={e => setNewItem({ ...newItem, car_category_id: e.target.value })}
             >
-              {categories.map(c=>(
+              {categories.map(c => (
                 <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
               ))}
             </Select>
           </FormControl>
           <TextField
-            margin="dense" label="Model"
-            fullWidth value={newItem.model}
-            onChange={e=>setNewItem({...newItem, model: e.target.value})}
+            margin="dense" label="Model" fullWidth
+            value={newItem.model}
+            onChange={e => setNewItem({ ...newItem, model: e.target.value })}
           />
           <TextField
-            margin="dense" label="Number"
-            fullWidth value={newItem.number}
-            onChange={e=>setNewItem({...newItem, number: e.target.value})}
+            margin="dense" label="Number" fullWidth
+            value={newItem.number}
+            onChange={e => setNewItem({ ...newItem, number: e.target.value })}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={()=>setOpenAdd(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleAdd}>Create</Button>
+          <Button onClick={() => setOpenAdd(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleCreate}>Create</Button>
         </DialogActions>
       </Dialog>
 
-      {/* Edit Dialog */}
-      <Dialog open={openEdit} onClose={()=>setOpenEdit(false)} fullWidth maxWidth="sm">
+      {/* Edit Model Dialog */}
+      <Dialog open={openEdit} onClose={() => setOpenEdit(false)} fullWidth maxWidth="sm">
         <DialogTitle>Edit Car Model</DialogTitle>
         <DialogContent>
           <FormControl fullWidth margin="dense">
             <InputLabel>Category</InputLabel>
             <Select
               value={editItem.car_category_id}
-              onChange={e=>setEditItem({...editItem, car_category_id: e.target.value})}
+              onChange={e => setEditItem({ ...editItem, car_category_id: e.target.value })}
             >
-              {categories.map(c=>(
+              {categories.map(c => (
                 <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
               ))}
             </Select>
           </FormControl>
           <TextField
-            margin="dense" label="Model"
-            fullWidth value={editItem.model}
-            onChange={e=>setEditItem({...editItem, model: e.target.value})}
+            margin="dense" label="Model" fullWidth
+            value={editItem.model}
+            onChange={e => setEditItem({ ...editItem, model: e.target.value })}
           />
           <TextField
-            margin="dense" label="Number"
-            fullWidth value={editItem.number}
-            onChange={e=>setEditItem({...editItem, number: e.target.value})}
+            margin="dense" label="Number" fullWidth
+            value={editItem.number}
+            onChange={e => setEditItem({ ...editItem, number: e.target.value })}
           />
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Status</InputLabel>
-            <Select
-              value={editItem.data_status}
-              onChange={e=>setEditItem({...editItem, data_status: e.target.value})}
-            >
-              <MenuItem value="active">active</MenuItem>
-              <MenuItem value="deleted">deleted</MenuItem>
-            </Select>
-          </FormControl>
         </DialogContent>
         <DialogActions>
-          <Button onClick={()=>setOpenEdit(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleEdit}>Save</Button>
+          <Button onClick={() => setOpenEdit(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleUpdate}>Save</Button>
         </DialogActions>
       </Dialog>
 
@@ -245,7 +287,7 @@ export default function CarModels() {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={closeSnackbar}
-        anchorOrigin={{ vertical:'top', horizontal:'right' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert onClose={closeSnackbar} severity={snackbar.severity}>
           {snackbar.message}
