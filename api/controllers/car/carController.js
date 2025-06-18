@@ -1,11 +1,37 @@
 // controllers/carController.js
 const carService = require('../../services/car/carService');
 
-// GET /api/cars
+
+async function parseQuery(req) {
+  const page = parseInt(req.query.page, 10)  || 1;
+  const limit= parseInt(req.query.limit,10)  || 10;
+  const search     = req.query.search     || '';
+  const searchField= req.query.searchField|| '';
+  return { page, limit, search, searchField };
+}
+
 exports.list = async (req, res, next) => {
   try {
-    const cars = await carService.listCars();
-    res.json(cars);
+    const {
+      page = 1,
+      limit = 10,
+      search = '',
+      searchField = '',
+      dateFrom,
+      dateTo
+    } = req.query;
+
+    const opts = {
+      page:       parseInt(page,  10),
+      limit:      parseInt(limit, 10),
+      search,
+      searchField,
+      dateFrom,   // строки вида "2025-06-01"
+      dateTo      // строки вида "2025-06-10"
+    };
+
+    const result = await carService.listCars(opts);
+    res.json(result);
   } catch (err) {
     next(err);
   }
