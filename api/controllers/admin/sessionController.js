@@ -1,5 +1,5 @@
 const sessionService = require('../../services/admin/sessionService');
-const userTokenService = require('../../services/userTokenService');
+const userTokenService = require('../../services/auth/userTokenService');
 
 exports.getAllSessions = async (req, res, next) => {
   try {
