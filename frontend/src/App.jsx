@@ -13,6 +13,7 @@ import AdminAccess from "./pages/admin/AdminAccess";
 import AdminSessions from "./pages/admin/AdminSessions";
 import AdminLogs from "./pages/admin/AdminLogs";
 import AdminLanguage from "./pages/admin/AdminLanguages";
+import AdminRegistrations from "./pages/admin/AdminRegistrations";
 import Settings from './pages/Settings';
 
 import CarBookings from './pages/car/CarBookings';
@@ -90,6 +91,13 @@ function App() {
                             <AdminLanguage />
                         </ProtectedRoute>
                     } />
+
+                    <Route path="admin/registration" element={
+                        <ProtectedRoute allowedPermissions={['registration_pageView']}>
+                            <AdminRegistrations />
+                        </ProtectedRoute>
+                    } />
+
                     <Route path="settings" element={
                         <ProtectedRoute allowedPermissions={[]}>
                             <Settings />

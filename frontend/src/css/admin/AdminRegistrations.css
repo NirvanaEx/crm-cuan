@@ -1,0 +1,82 @@
+/* src/css/admin/AdminRegistrations.css */
+
+.admin-reg-container {
+  padding: 24px;
+}
+
+/* Tabs */
+.registrations-tabs .MuiTab-root {
+  color: var(--text-color) !important;
+}
+.registrations-tabs .Mui-selected {
+  color: var(--accent-color) !important;
+}
+.registrations-tabs .MuiTabs-indicator {
+  background-color: var(--accent-color) !important;
+}
+
+/* Search wrapper: add space from tabs */
+.search-wrapper {
+  margin: 16px 0;
+}
+
+/* Table row hover */
+.universal-table table tbody tr:hover {
+  background-color: var(--hover-bg-color);
+}
+
+/* Actions */
+.actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
+/* Approve button background */
+.approve-btn {
+  background-color: var(--card-bg);
+  border-radius: 4px;
+  transition: transform 0.2s;
+}
+.approve-btn:hover {
+  transform: scale(1.2);
+}
+/* Approve icon color */
+.approve-btn svg {
+  color: #4caf50;
+}
+
+/* Reject button background */
+.reject-btn {
+  background-color: var(--card-bg);
+  border-radius: 4px;
+  transition: transform 0.2s;
+}
+.reject-btn:hover {
+  transform: scale(1.2);
+}
+/* Reject icon color */
+.reject-btn svg {
+  color: #f44336;
+}
+
+/* Pending status label */
+.status-label {
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: capitalize;
+  font-weight: 500;
+  background-color: var(--hover-bg-color);
+  color: var(--text-color);
+}
+
+/* History status text */
+.status-text {
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.status-text.approved {
+  color: #4caf50;
+}
+.status-text.rejected {
+  color: #f44336;
+}
