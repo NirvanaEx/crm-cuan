@@ -1,0 +1,281 @@
+openapi: 3.0.3
+info:
+  title: Your API
+  version: "1.0.0"
+  description: |
+    Main API for user registration, authentication, car booking, and other resources.
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+tags:
+  - name: Auth
+    description: Endpoints for registration and authentication
+
+paths:
+  /api/auth/registration:
+    post:
+      tags:
+        - Auth
+      summary: Create a new registration request
+      operationId: createRegistrationRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+      responses:
+        '201':
+          description: Registration request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistrationResponse'
+        '400':
+          description: Validation failed or bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: User login
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Missing or invalid fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: User logout
+      operationId: logoutUser
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successful logout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+        '400':
+          description: Bad request or token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/me:
+    get:
+      tags:
+        - Auth
+      summary: Get current user profile
+      operationId: getCurrentUser
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Returns authenticated user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserRegistrationRequest:
+      type: object
+      required:
+        - login
+        - password
+        - surname
+        - name
+        - tab_num
+      properties:
+        login:
+          type: string
+          description: Lowercase login name
+          example: "john123"
+        password:
+          type: string
+          description: Plain-text password, minimum 8 characters
+          example: "P@ssw0rd!"
+        surname:
+          type: string
+          description: User's surname
+        name:
+          type: string
+          description: User's given name
+        patronym:
+          type: string
+          nullable: true
+          description: Optional patronymic
+        tab_num:
+          type: string
+          description: Alphanumeric staff number
+        phone:
+          type: string
+          nullable: true
+          description: Optional phone number
+
+    UserRegistrationResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Registration request identifier
+        login:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+
+    LoginRequest:
+      type: object
+      required:
+        - login
+        - password
+      properties:
+        login:
+          type: string
+          description: User login name
+        password:
+          type: string
+          description: Plain-text password
+        device:
+          type: string
+          nullable: true
+          description: Optional device identifier
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Bearer token for authenticated requests
+
+    LogoutResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Confirmation of logout
+
+    UserProfileResponse:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+            login:
+              type: string
+            date_creation:
+              type: string
+              format: date-time
+            surname:
+              type: string
+            name:
+              type: string
+            patronym:
+              type: string
+              nullable: true
+            phone:
+              type: string
+              nullable: true
+            roles:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+            permissions:
+              type: array
+              items:
+                type: string
+            selected_language_id:
+              type: integer
+              nullable: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
