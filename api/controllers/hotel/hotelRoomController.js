@@ -1,5 +1,19 @@
 const service = require('../../services/hotel/hotelRoomService');
 
+
+exports.listAvailable = async (req, res, next) => {
+  try {
+    const { date_start, date_end } = req.query;
+    if (!date_start || !date_end) {
+      return res.status(400).json({ error: 'Missing date_start or date_end' });
+    }
+    const rooms = await roomService.listAvailableRooms({ date_start, date_end });
+    res.json(rooms);
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.list = async (req, res, next) => {
   try {
     const { search, searchField, dateFrom, dateTo, page, limit } = req.query;

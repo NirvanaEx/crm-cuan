@@ -1,9 +1,17 @@
 const service = require('../../services/hotel/hotelBookService');
 
+
 exports.list = async (req, res, next) => {
   try {
-    const { search, searchField, dateFrom, dateTo, page, limit } = req.query;
-    const result = await service.listBookings({ search, searchField, dateFrom, dateTo, page, limit });
+    const {
+      search, searchField, dateFrom, dateTo,
+      status, page, limit
+    } = req.query;
+
+    const result = await service.listBookings({
+      search, searchField, dateFrom, dateTo,
+      status, page, limit
+    });
     res.json(result);
   } catch (err) {
     next(err);
@@ -57,6 +65,19 @@ exports.update = async (req, res, next) => {
       status
     });
     res.json({ message: 'Booking updated' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updateStatus = async (req, res, next) => {
+  try {
+    const status = req.body.status;
+    if (!status) {
+      return res.status(400).json({ error: 'Missing status' });
+    }
+    await service.updateBookingStatus(req.params.id, status);
+    res.json({ message: 'Status updated' });
   } catch (err) {
     next(err);
   }

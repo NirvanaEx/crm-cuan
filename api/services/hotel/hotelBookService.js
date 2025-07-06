@@ -1,9 +1,32 @@
+// services/hotel/hotelBookService.js
 const db = require('../../config/db');
 
-exports.listBookings = async ({ search, searchField, dateFrom, dateTo, page = 1, limit = 10 }) => {
-  const where = [];
-  const params = [];
+exports.listBookings = async ({
+  search, searchField, dateFrom, dateTo,
+  status,    // теперь: "pending", "active" или "history"
+  page = 1, limit = 10
+}) => {
+  const where = [], params = [];
 
+  // 1) Фильтр по табу:
+  if (status === 'active') {
+    where.push(`b.status = 'approved' AND b.date_end >= NOW()`);
+  } else if (status === 'pending') {
+    where.push(`b.status = 'pending' AND b.date_start > NOW()`);
+  } else if (status === 'history') {
+    // все, что не active/pending: либо статус отменён/отвергнут,
+    // либо дата окончания < NOW(),
+    // либо pending с датой начала < NOW(),
+    // либо approved с датой окончания < NOW()
+    where.push(`(
+      b.status IN ('canceled','rejected')
+      OR b.date_end < NOW()
+      OR (b.status = 'pending'  AND b.date_start <= NOW())
+      OR (b.status = 'approved' AND b.date_end   < NOW())
+    )`);
+  }
+
+  // 2) Поиск по полям
   if (search && searchField) {
     if (searchField === 'room_num') {
       where.push('r.num LIKE ?');
@@ -13,6 +36,7 @@ exports.listBookings = async ({ search, searchField, dateFrom, dateTo, page = 1,
     params.push(`%${search}%`);
   }
 
+  // 3) Фильтр по диапазону даты создания (опционально)
   if (dateFrom) {
     where.push('b.date_creation >= ?');
     params.push(dateFrom);
@@ -24,6 +48,7 @@ exports.listBookings = async ({ search, searchField, dateFrom, dateTo, page = 1,
 
   const whereSQL = where.length ? 'WHERE ' + where.join(' AND ') : '';
 
+  // считаем total
   const [countRows] = await db.execute(
     `SELECT COUNT(*) AS cnt
        FROM hotel_book b
@@ -33,12 +58,12 @@ exports.listBookings = async ({ search, searchField, dateFrom, dateTo, page = 1,
   );
   const total = countRows[0].cnt;
 
+  // выбираем данные с пагинацией
   const offset = (page - 1) * limit;
   const [rows] = await db.execute(
     `SELECT b.id,
             b.room_id,
             r.num      AS room_num,
-            b.user_id,
             b.phone,
             b.purpose,
             b.date_start,
@@ -53,12 +78,10 @@ exports.listBookings = async ({ search, searchField, dateFrom, dateTo, page = 1,
     [...params, Number(limit), Number(offset)]
   );
 
-  // Добавляем serial no
   const withNo = rows.map((r, i) => ({
     no: offset + i + 1,
     ...r
   }));
-
   return { total, rows: withNo };
 };
 
@@ -106,4 +129,11 @@ exports.deleteBooking = async (id) => {
     [id]
   );
   return true;
+};
+
+exports.updateBookingStatus = async (id, status) => {
+  await db.execute(
+    'UPDATE hotel_book SET status = ? WHERE id = ?',
+    [status, id]
+  );
 };

@@ -5,6 +5,13 @@ const checkAccess = require('../../middlewares/checkAccess');
 
 // GET    /api/hotel/rooms
 router.get('/',            checkAccess('hotelRoom_read'),   ctrl.list);
+
+router.get(
+  '/available',
+   checkAccess('hotelRoom_read'),
+   ctrl.listAvailable
+);
+
 // GET    /api/hotel/rooms/:id
 router.get('/:id',         checkAccess('hotelRoom_read'),   ctrl.getById);
 // POST   /api/hotel/rooms

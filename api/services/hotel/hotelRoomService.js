@@ -1,5 +1,28 @@
 const db = require('../../config/db');
 
+
+exports.listAvailableRooms = async ({ date_start, date_end }) => {
+  // возвращаем все ACTIVE номера, которые
+  // не перекрываются с существующими бронями pending/approved
+  const [rows] = await db.execute(
+    `SELECT id, num, data_status, date_creation
+       FROM hotel_room
+      WHERE data_status = 'active'
+        AND id NOT IN (
+          SELECT room_id
+            FROM hotel_book
+           WHERE status IN ('pending','approved')
+             AND NOT (
+               date_end   < ?       -- до начала нашего периода
+               OR date_start > ?    -- или после конца нашего периода
+             )
+        )`,
+    [date_start, date_end]
+  );
+  return rows;
+};
+
+
 exports.listRooms = async ({ search, searchField, dateFrom, dateTo, page = 1, limit = 10 }) => {
   const where = [];
   const params = [];

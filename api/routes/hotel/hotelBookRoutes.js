@@ -11,6 +11,9 @@ router.get('/:id',         checkAccess('hotelBook_read'),   ctrl.getById);
 router.post('/',           checkAccess('hotelBook_create'), ctrl.create);
 // PUT    /api/hotel/bookings/:id
 router.put('/:id',         checkAccess('hotelBook_update'), ctrl.update);
+
+router.put('/:id/status', checkAccess('hotelBook_update'), ctrl.updateStatus);
+
 // DELETE /api/hotel/bookings/:id
 router.delete('/:id',      checkAccess('hotelBook_delete'), ctrl.delete);
 
