@@ -42,6 +42,10 @@ const carCategoryRoutes  = require('./routes/car/carCategoryRoutes');
 const carRoutes          = require('./routes/car/carRoutes');
 const carBookRoutes      = require('./routes/car/carBookRoutes');
 
+const hotelRoomRoutes  = require('./routes/hotel/hotelRoomRoutes');
+const hotelBookRoutes  = require('./routes/hotel/hotelBookRoutes');
+const hotelPhotoRoutes = require('./routes/hotel/hotelPhotoRoutes');
+
 // Public authentication and registration routes
 app.use('/api/auth', authRoutes);
 app.use('/api/auth/registration', publicRegRoutes);
@@ -63,6 +67,11 @@ app.use('/api/user-setting',   authMiddleware, userSettingRoutes);
 app.use('/api/car-categories', authMiddleware, carCategoryRoutes);
 app.use('/api/cars',           authMiddleware, carRoutes);
 app.use('/api/car-bookings',   authMiddleware, carBookRoutes);
+
+// Protected hotel routes
+app.use('/api/hotel/rooms',    authMiddleware, hotelRoomRoutes);
+app.use('/api/hotel/bookings', authMiddleware, hotelBookRoutes);
+app.use('/api/hotel/photos',   authMiddleware, hotelPhotoRoutes);
 
 // Load and apply global error handler
 const errorHandler = require('./middlewares/errorHandler');
