@@ -21,6 +21,9 @@ import CarCategories from './pages/car/CarCategories';
 import CarModels from './pages/car/CarModels'
 import CalendarBookings from './pages/car/CalendarBookings';
 
+import HotelRooms    from './pages/hotel/HotelRooms';
+import HotelBookings from './pages/hotel/HotelBookings';
+
 function App() {
     const [progress, setProgress] = useState(0);
     const { theme } = useContext(ThemeContext);
@@ -134,6 +137,23 @@ function App() {
                             <ProtectedRoute allowedPermissions={['carBookCalendar_pageView']}>
                                 <CalendarBookings />
                             </ProtectedRoute>
+                        }
+                    />
+
+                     <Route
+                        path="hotel/rooms"
+                        element={
+                        <ProtectedRoute allowedPermissions={['hotelRoom_pageView']}>
+                            <HotelRooms />
+                        </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="hotel/bookings"
+                        element={
+                        <ProtectedRoute allowedPermissions={['hotelBook_pageView']}>
+                            <HotelBookings />
+                        </ProtectedRoute>
                         }
                     />
 

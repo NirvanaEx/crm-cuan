@@ -1,0 +1,20 @@
+.hotel-bookings-container {
+  padding: 20px;
+}
+
+.hotel-bookings-container h1 {
+  margin-bottom: 16px;
+}
+
+.hotel-bookings-container .MuiBox-root {
+  align-items: center;
+}
+
+.hotel-bookings-container .universal-search-container {
+  flex: 1;
+  margin-right: 16px;
+}
+
+.hotel-bookings-container button {
+  text-transform: none;
+}

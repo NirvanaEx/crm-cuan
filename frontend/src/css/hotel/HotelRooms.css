@@ -1,0 +1,22 @@
+.hotel-rooms-container {
+  padding: 20px;
+}
+
+.hotel-rooms-container h1 {
+  margin-bottom: 16px;
+}
+
+.hotel-rooms-container .action-icon {
+  cursor: pointer;
+  margin-right: 8px;
+  font-size: 1.2rem;
+}
+
+.hotel-rooms-container .action-icon.delete {
+  color: #e74c3c;
+}
+
+.hotel-rooms-container .universal-search-container {
+  flex: 1;
+  margin-right: 16px;
+}

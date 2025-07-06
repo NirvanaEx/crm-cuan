@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   FaCog, FaSignOutAlt, FaMoon, FaSun, FaLanguage,
   FaUsers, FaUserShield, FaKey, FaClock, FaFileAlt,
-  FaFileContract, FaLayerGroup, FaCar, FaUserPlus
+  FaFileContract, FaLayerGroup, FaCar, FaUserPlus, FaBed
 } from 'react-icons/fa';
 import { ThemeContext } from '../context/ThemeContext';
 import { AuthContext } from '../context/AuthContext';
@@ -37,21 +37,27 @@ export default function Sidebar({ isOpen }) {
     { name: t('sidebar:CAR_CALENDAR'),    icon: <FaClock/>,         path: '/car-calendar',   required: 'carBookCalendar_pageView' }
   ];
 
+  const hotelItems = [
+    { name: t('sidebar:HOTEL_ROOMS'),    icon: <FaBed/>, path: '/hotel/rooms',    required: 'hotelRoom_pageView' },
+    { name: t('sidebar:HOTEL_BOOKINGS'), icon: <FaFileContract/>, path: '/hotel/bookings', required: 'hotelBook_pageView' }
+  ];
+
   const settingsItem = { name: t('common:SETTINGS'), icon: <FaCog/>, path: '/settings' };
 
-  // Determine active item
+  // Определение активного пункта
   useEffect(() => {
-    const all = [...adminItems, ...carItems, settingsItem];
+    const all = [...adminItems, ...carItems, ...hotelItems, settingsItem];
     const cur = all.find(i => location.pathname.startsWith(i.path));
     if (cur) setActiveItem(cur.name);
-  }, [location, adminItems, carItems, settingsItem]);
+  }, [location, adminItems, carItems, hotelItems, settingsItem]);
 
-  // Filter by permissions
+  // Фильтрация по правам
   const isSuperAdmin = roles?.some(r => r.name === 'superadmin');
   const byPerm = arr =>
     isSuperAdmin ? arr : arr.filter(i => permissions.includes(i.required));
-  const adminAllowed = byPerm(adminItems);
-  const carAllowed   = byPerm(carItems);
+  const adminAllowed  = byPerm(adminItems);
+  const carAllowed    = byPerm(carItems);
+  const hotelAllowed  = byPerm(hotelItems);
 
   const handleLogout = async () => {
     await logout();
@@ -85,16 +91,12 @@ export default function Sidebar({ isOpen }) {
         <h2>DashStack</h2>
       </div>
 
-      {/* Scrollable menu wrapper */}
       <div className="sidebar-menu-wrapper">
-        {/* Admin section */}
         {renderSection(t('sidebar:ADMIN_SECTION'), adminAllowed)}
-
-        {/* Cars section */}
         {renderSection(t('sidebar:CAR_SECTION'), carAllowed)}
+        {renderSection(t('sidebar:HOTEL_SECTION'), hotelAllowed)}
       </div>
 
-      {/* Settings and Logout */}
       <ul className="sidebar-menu sidebar-bottom">
         <Link to={settingsItem.path} style={{ textDecoration: 'none', color: 'inherit' }}>
           <li className={activeItem === settingsItem.name ? 'active' : ''}>
