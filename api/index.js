@@ -8,8 +8,19 @@ const path = require('path');
 const app = express();
 app.set('trust proxy', true);
 
+const allowedOrigins = ['http://localhost:5173', 'http://193.160.119.15'];
+
 // Enable CORS for frontend application
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({
+  origin: function (origin, callback) {
+    // Разрешить запросы без Origin (например, curl или мобильные клиенты)
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
 
 // Parse incoming JSON requests
 app.use(express.json());
