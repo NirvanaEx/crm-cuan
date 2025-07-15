@@ -53,13 +53,17 @@ const carCategoryRoutes  = require('./routes/car/carCategoryRoutes');
 const carRoutes          = require('./routes/car/carRoutes');
 const carBookRoutes      = require('./routes/car/carBookRoutes');
 
-const hotelRoomRoutes  = require('./routes/hotel/hotelRoomRoutes');
-const hotelBookRoutes  = require('./routes/hotel/hotelBookRoutes');
-const hotelPhotoRoutes = require('./routes/hotel/hotelPhotoRoutes');
+const hotelRoomRoutes    = require('./routes/hotel/hotelRoomRoutes');
+const hotelBookRoutes    = require('./routes/hotel/hotelBookRoutes');
+const hotelPhotoRoutes   = require('./routes/hotel/hotelPhotoRoutes');
+
+const certificateRoutes         = require('./routes/certificate/certificateRoutes');
+const certificateFieldRoutes    = require('./routes/certificate/certificateFieldRoutes');
+const certificateRequestRoutes  = require('./routes/certificate/certificateRequestRoutes');
 
 // Public authentication and registration routes
-app.use('/api/auth', authRoutes);
 app.use('/api/auth/registration', publicRegRoutes);
+app.use('/api/auth',          authRoutes);
 
 // Protected admin routes
 app.use('/api/users',          authMiddleware, userRoutes);
@@ -83,6 +87,12 @@ app.use('/api/car-bookings',   authMiddleware, carBookRoutes);
 app.use('/api/hotel/rooms',    authMiddleware, hotelRoomRoutes);
 app.use('/api/hotel/bookings', authMiddleware, hotelBookRoutes);
 app.use('/api/hotel/photos',   authMiddleware, hotelPhotoRoutes);
+
+// Protected certificate routes
+app.use('/api/certificate/fields',   authMiddleware, certificateFieldRoutes);
+app.use('/api/certificate/requests', authMiddleware, certificateRequestRoutes);
+app.use('/api/certificate',          authMiddleware, certificateRoutes);
+
 
 // Load and apply global error handler
 const errorHandler = require('./middlewares/errorHandler');

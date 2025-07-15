@@ -32,6 +32,10 @@ hotel_room: id, num (varchar),  date_creation, data_status (ENUM: active, delete
 hotel_book: id, room_id, user_id, phone, purpose (NULL), date_start, date_end, status (ENUM: pending, approved, canceled, rejected), date_creation;
 hotel_photo: id, hotel_room_id, path, date_creation, data_status (ENUM: active, deleted);
 
+certificate: id, name, date_creation, date_status (enum: deleted, active);
+certificate_field: id, certificate_id, field_name, value, date_creation, date_status (enum: deleted, active);
+certificate_request: id, user_id, certificate_id, status (enum: pending, approved, rejected, canceled), date_creation;
+
 log: id (AUTO INCREMENT), user_id, action_name, date_creation;
 
 Языки: en, ru, uz
