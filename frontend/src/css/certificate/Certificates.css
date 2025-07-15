@@ -1,0 +1,10 @@
+.certificates-container {
+  padding: 16px;
+}
+.action-icon {
+  margin-right: 8px;
+  cursor: pointer;
+}
+.action-icon.delete {
+  color: red;
+}
