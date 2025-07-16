@@ -1,4 +1,4 @@
-// controllers/certificate/certificateController.js
+// api/controllers/certificate/certificateController.js
 const service = require('../../services/certificate/certificateService');
 
 exports.list = async (req, res, next) => {
@@ -34,8 +34,8 @@ exports.create = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   try {
-    const { name, date_status } = req.body;
-    await service.updateCertificate(req.params.id, { name, date_status });
+    const { name, data_status } = req.body;
+    await service.updateCertificate(req.params.id, { name, data_status });
     res.json({ message: 'Certificate updated' });
   } catch (err) {
     next(err);

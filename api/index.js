@@ -60,6 +60,7 @@ const hotelPhotoRoutes   = require('./routes/hotel/hotelPhotoRoutes');
 const certificateRoutes         = require('./routes/certificate/certificateRoutes');
 const certificateFieldRoutes    = require('./routes/certificate/certificateFieldRoutes');
 const certificateRequestRoutes  = require('./routes/certificate/certificateRequestRoutes');
+const certificateDataRoutes     = require('./routes/certificate/certificateDataRoutes');
 
 // Public authentication and registration routes
 app.use('/api/auth/registration', publicRegRoutes);
@@ -91,6 +92,7 @@ app.use('/api/hotel/photos',   authMiddleware, hotelPhotoRoutes);
 // Protected certificate routes
 app.use('/api/certificate/fields',   authMiddleware, certificateFieldRoutes);
 app.use('/api/certificate/requests', authMiddleware, certificateRequestRoutes);
+app.use('/api/certificate/data',     authMiddleware, certificateDataRoutes);
 app.use('/api/certificate',          authMiddleware, certificateRoutes);
 
 

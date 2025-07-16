@@ -1,13 +1,12 @@
 const db = require('../../config/db');
 
-exports.listFields = async ({ search, searchField, dateFrom, dateTo, page = 1, limit = 10 }) => {
+exports.list = async ({ search, searchField, dateFrom, dateTo, page = 1, limit = 10 }) => {
   const where = [];
   const params = [];
 
   if (search && searchField) {
-    // поиск по имени сертификата или по полю
     if (searchField === 'certificate_name') {
-      where.push('cert.name LIKE ?');
+      where.push('c.name LIKE ?');
     } else {
       where.push(`cf.\`${searchField}\` LIKE ?`);
     }
@@ -24,87 +23,72 @@ exports.listFields = async ({ search, searchField, dateFrom, dateTo, page = 1, l
 
   const whereSQL = where.length ? 'WHERE ' + where.join(' AND ') : '';
 
-  // total
   const [countRows] = await db.execute(
-    `SELECT COUNT(*) AS cnt
-       FROM certificate_field cf
-  LEFT JOIN certificate cert ON cf.certificate_id = cert.id
+    `SELECT COUNT(*) AS cnt 
+       FROM certificate_field cf 
+  LEFT JOIN certificate c ON cf.certificate_id = c.id
        ${whereSQL}`,
     params
   );
   const total = countRows[0].cnt;
 
-  // data
   const offset = (page - 1) * limit;
   const [rows] = await db.execute(
     `SELECT cf.id,
-            cf.certificate_id,
-            cert.name      AS certificate_name,
             cf.field_name,
-            cf.value,
-            cf.date_creation
+            cf.field_type,
+            cf.date_creation,
+            cf.data_status,
+            c.name AS certificate_name
        FROM certificate_field cf
-  LEFT JOIN certificate cert ON cf.certificate_id = cert.id
+  LEFT JOIN certificate c ON cf.certificate_id = c.id
        ${whereSQL}
        ORDER BY cf.date_creation DESC
        LIMIT ? OFFSET ?`,
-    [...params, Number(limit), Number(offset)]
+    [...params, Number(limit), offset]
   );
 
   return {
     total,
-    rows: rows.map((r, i) => ({
-      no: offset + i + 1,
-      ...r
-    }))
+    rows: rows.map((r, i) => ({ no: offset + i + 1, ...r }))
   };
 };
 
-exports.getFieldById = async (id) => {
+exports.getById = async (id) => {
   const [rows] = await db.execute(
-    `SELECT cf.id,
-            cf.certificate_id,
-            cf.field_name,
-            cf.value,
-            cf.date_creation
-       FROM certificate_field cf
-      WHERE cf.id = ?`,
+    `SELECT id, certificate_id, field_name, field_type, date_creation, data_status
+       FROM certificate_field
+      WHERE id = ?`,
     [id]
   );
   return rows[0];
 };
 
-exports.createField = async ({ certificate_id, field_name, value }) => {
-  const [result] = await db.execute(
+exports.create = async ({ certificate_id, field_name, field_type }) => {
+  const [res] = await db.execute(
     `INSERT INTO certificate_field
-      (certificate_id, field_name, value, date_creation, date_status)
+       (certificate_id, field_name, field_type, date_creation, data_status)
      VALUES (?, ?, ?, NOW(), 'active')`,
-    [certificate_id, field_name, value]
+    [certificate_id, field_name, field_type]
   );
-  return {
-    id: result.insertId,
-    certificate_id,
-    field_name,
-    value
-  };
+  return { id: res.insertId, certificate_id, field_name, field_type };
 };
 
-exports.updateField = async (id, { certificate_id = null, field_name = null, value = null }) => {
+exports.update = async (id, { certificate_id, field_name, field_type, data_status }) => {
   await db.execute(
     `UPDATE certificate_field
-       SET certificate_id = COALESCE(?, certificate_id),
-           field_name     = COALESCE(?, field_name),
-           value          = COALESCE(?, value)
-     WHERE id = ?`,
-    [certificate_id, field_name, value, id]
+        SET certificate_id = COALESCE(?, certificate_id),
+            field_name     = COALESCE(?, field_name),
+            field_type     = COALESCE(?, field_type),
+            data_status    = COALESCE(?, data_status)
+      WHERE id = ?`,
+    [certificate_id, field_name, field_type, data_status, id]
   );
-  return true;
 };
 
-exports.deleteField = async (id) => {
+exports.delete = async (id) => {
   await db.execute(
     `DELETE FROM certificate_field WHERE id = ?`,
     [id]
   );
-  return true;
 };
