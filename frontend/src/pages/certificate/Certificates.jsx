@@ -29,7 +29,7 @@ export default function Certificates() {
   const [openAdd, setOpenAdd]   = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [current, setCurrent]   = useState({
-    id: null, name:'', date_status:'active'
+    id: null, name:'', data_status:'active'
   });
 
   // snackbar
@@ -77,7 +77,7 @@ export default function Certificates() {
       await api.post('/certificate', { name: current.name });
       show('Certificate created');
       setOpenAdd(false);
-      setCurrent({ id:null, name:'', date_status:'active' });
+      setCurrent({ id:null, name:'', data_status:'active' });
       setFilters(f=>({ ...f })); // перезагрузить
     } catch {
       show('Error creating','error');
@@ -89,11 +89,11 @@ export default function Certificates() {
     try {
       await api.put(`/certificate/${current.id}`, {
         name: current.name,
-        date_status: current.date_status
+        data_status: current.data_status
       });
       show('Certificate updated');
       setOpenEdit(false);
-      setCurrent({ id:null, name:'', date_status:'active' });
+      setCurrent({ id:null, name:'', data_status:'active' });
       setFilters(f=>({ ...f }));
     } catch {
       show('Error updating','error');
@@ -121,13 +121,13 @@ export default function Certificates() {
       width:'30%',
       render: v => format(new Date(v),'dd.MM.yyyy HH:mm')
     },
-    { key:'date_status',   label:'Status',  width:'15%' }
+    { key:'data_status',   label:'Status',  width:'15%' }
     // actions подтянутся из onEdit/onDelete
   ];
 
   const fields = [
     { value:'name',        label:'Name' },
-    { value:'date_status', label:'Status' }
+    { value:'data_status', label:'Status' }
   ];
 
   return (
@@ -137,7 +137,7 @@ export default function Certificates() {
       <Box sx={{ display:'flex', justifyContent:'space-between', mb:2 }}>
         <UniversalSearch fields={fields} onSearch={handleSearch} />
         <Button variant="contained" onClick={() => {
-          setCurrent({ id:null, name:'', date_status:'active' });
+          setCurrent({ id:null, name:'', data_status:'active' });
           setOpenAdd(true);
         }}>
           New Certificate
@@ -191,9 +191,9 @@ export default function Certificates() {
           <FormControl fullWidth margin="dense">
             <InputLabel>Status</InputLabel>
             <Select
-              value={current.date_status}
+              value={current.data_status}
               label="Status"
-              onChange={e=>setCurrent(c=>({...c,date_status:e.target.value}))}
+              onChange={e=>setCurrent(c=>({...c,data_status:e.target.value}))}
             >
               {['active','deleted'].map(s=>(
                 <MenuItem key={s} value={s}>{s}</MenuItem>
