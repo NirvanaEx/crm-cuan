@@ -1,110 +1,118 @@
 /* src/css/Sidebar.css */
 
-/* Базовый вид */
+/* Base sidebar styles */
 .sidebar {
-    background-color: var(--sidebar-bg);
-    color: var(--sidebar-text);
-    border-right: 1px solid var(--sidebar-border);
-    display: flex;
-    flex-direction: column;
-    height: 100vh;          /* полная высота экрана */
-    transition: width 0.3s ease;
-    overflow: hidden;       /* прячем всё, что выходит за границы */
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  border-right: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;          /* Occupies full viewport height */
+  transition: width 0.3s ease;
+  overflow: hidden;
 }
 
 .sidebar.open {
-    width: 220px;
+  width: 220px;
 }
 
 .sidebar.closed {
-    width: 60px;
+  width: 60px;
 }
 
 .sidebar-logo {
-    padding: 20px;
-    font-size: 18px;
-    font-weight: bold;
-    color: var(--sidebar-text);
-    border-bottom: 1px solid var(--sidebar-border);
-    white-space: nowrap;
+  padding: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--sidebar-text);
+  border-bottom: 1px solid var(--sidebar-border);
+  white-space: nowrap;
 }
 
 .sidebar.closed .sidebar-logo h2 {
-    font-size: 0;
-    opacity: 0;
+  font-size: 0; /* Hides the text when closed */
+  opacity: 0;
 }
 
-/* Общий контейнер для прокручиваемого меню */
+/* Scrollable menu container */
 .sidebar-menu-wrapper {
-    flex: 1;               /* занимает всё доступное пространство между логотипом и нижними кнопками */
-    overflow-y: auto;      /* вертикальный скролл, если меню слишком длинное */
+  flex: 1;               /* Takes remaining space */
+  overflow-y: auto;
 }
 
-/* Стили самих списков */
+/* Menu list styles */
 .sidebar-menu {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
+/* Menu item styles */
 .sidebar-menu li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
-    cursor: pointer;
-    color: var(--sidebar-text);
-    font-size: 14px;
-    transition: background-color 0.2s ease, color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  cursor: pointer;
+  color: var(--sidebar-text);
+  font-size: 14px;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .sidebar-menu li:hover {
-    background-color: var(--sidebar-hover-bg);
+  background-color: var(--sidebar-hover-bg);
 }
 
 .sidebar-menu li.active {
-    background-color: var(--sidebar-active-bg);
-    color: var(--sidebar-active-color);
-    border-right: 4px solid var(--sidebar-active-border);
+  background-color: var(--sidebar-active-bg);
+  color: var(--sidebar-active-color);
+  border-right: 4px solid var(--sidebar-active-border);
 }
 
+/* Hide text when sidebar is closed */
 .sidebar.closed li span {
-    display: none;
+  display: none;
 }
 
+/* Section titles */
 .sidebar-section-title {
-    margin: 20px 0 5px 20px;
-    font-size: 12px;
-    color: #999;
-    text-transform: uppercase;
-    transition: opacity 0.3s ease;
+  margin: 20px 0 5px 20px;
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  transition: opacity 0.3s ease;
 }
 
 .sidebar.closed .sidebar-section-title {
-    opacity: 0;
-    margin-left: 10px;
+  opacity: 0;
+  margin-left: 10px;
 }
 
-/* Нижние пункты */
+/* Bottom menu section */
 .sidebar-bottom {
-    border-top: 1px solid var(--sidebar-border);
-    padding-top: 10px;
+  border-top: 1px solid var(--sidebar-border);
+  padding-top: 10px;
 }
 
-.sidebar-menu.sidebar-bottom {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-/* Дополнительные настройки (тема и язык) */
+/* Extra settings (theme & language) */
 .sidebar-menu.extra-settings {
-    margin-top: 20px;
-    border-top: 1px solid var(--sidebar-border);
-    padding-top: 10px;
+  margin-top: 20px;
+  border-top: 1px solid var(--sidebar-border);
+  padding-top: 10px;
 }
 
-/* Скрываем overflow-x */
-.sidebar-menu, .sidebar-menu-wrapper {
-    overflow-x: hidden;
+/* Removes underline and inherits color for links */
+.sidebar-link {
+  text-decoration: none; /* Removes default link underline */
+  color: inherit;        /* Inherits text color from parent li */
+  display: flex;         /* Ensures icon and text align */
+  align-items: center;
+  gap: 12px;             /* Matches li gap */
+  width: 100%;           /* Link covers full width of li */
+}
+
+/* Prevent horizontal scroll */
+.sidebar-menu,
+.sidebar-menu-wrapper {
+  overflow-x: hidden;
 }
