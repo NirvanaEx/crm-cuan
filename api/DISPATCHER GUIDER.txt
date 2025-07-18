@@ -29,7 +29,7 @@ car: id, car_category_id, model, number (text), data_status (ENUM: active, delet
 car_book: id, car_id, user_id, phone_number, purpose, route (text), date_start (DATETIME), date_expired (DATETIME), status (pending, approved, canceled, rejected), date_creation;
 
 hotel_room: id, num (varchar),  date_creation, data_status (ENUM: active, deleted, paused);
-hotel_book: id, room_id, user_id, phone, purpose (NULL), date_start, date_end, status (ENUM: pending, approved, canceled, rejected), date_creation;
+hotel_book: id, room_id, user_id, phone, purpose (NULL), date_start, date_end, status (ENUM: pending, approved, canceled, rejected), door_code, date_creation;
 hotel_photo: id, hotel_room_id, path, date_creation, data_status (ENUM: active, deleted);
 
 certificate: id, name, date_creation, data_status (enum: deleted, active);

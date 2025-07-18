@@ -1,10 +1,11 @@
 openapi: 3.0.3
 info:
   title: Mobile API
-  version: "1.0.2"
+  version: "1.0.3"
   description: |
     Subset of the main API for mobile clients:
     registration, auth, viewing cars & categories,
+    viewing hotel rooms & availability,
     and creating/canceling own bookings.
 
 servers:
@@ -20,6 +21,10 @@ tags:
     description: View cars
   - name: CarBooking
     description: Create and cancel your own car bookings
+  - name: HotelRoom
+    description: View hotel rooms and availability
+  - name: HotelBooking
+    description: Create and cancel your own hotel bookings
 
 paths:
   /api/auth/registration:
@@ -104,6 +109,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
 
+  # --- Car endpoints ---
   /api/car-categories:
     get:
       tags: [CarCategory]
@@ -153,17 +159,17 @@ paths:
       parameters:
         - in: query
           name: date_start
+          required: true
           schema:
             type: string
             format: date-time
-          required: true
           description: Booking start datetime
         - in: query
           name: date_expired
+          required: true
           schema:
             type: string
             format: date-time
-          required: true
           description: Booking end datetime
       responses:
         '200':
@@ -182,7 +188,7 @@ paths:
   /api/car-bookings:
     post:
       tags: [CarBooking]
-      summary: Create a new booking
+      summary: Create a new car booking
       security:
         - BearerAuth: []
       requestBody:
@@ -211,7 +217,7 @@ paths:
   /api/car-bookings/my/pending:
     get:
       tags: [CarBooking]
-      summary: List your pending bookings
+      summary: List your pending car bookings
       security:
         - BearerAuth: []
       parameters:
@@ -240,7 +246,7 @@ paths:
   /api/car-bookings/my/active:
     get:
       tags: [CarBooking]
-      summary: List your active bookings
+      summary: List your active car bookings
       security:
         - BearerAuth: []
       parameters:
@@ -267,7 +273,7 @@ paths:
   /api/car-bookings/my/history:
     get:
       tags: [CarBooking]
-      summary: List your past (canceled/rejected/expired) bookings
+      summary: List your past car bookings
       security:
         - BearerAuth: []
       parameters:
@@ -294,8 +300,8 @@ paths:
   /api/car-bookings/my/{id}/status:
     put:
       tags: [CarBooking]
-      summary: Cancel your booking
-      operationId: cancelOwnBooking
+      summary: Cancel your car booking
+      operationId: cancelOwnCarBooking
       security:
         - BearerAuth: []
       parameters:
@@ -316,8 +322,222 @@ paths:
               properties:
                 status:
                   type: string
-                  enum: [canceled]
-                  example: canceled
+                  enum:
+                    - canceled
+      responses:
+        '200':
+          description: Booking cancelled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # --- Hotel endpoints ---
+  /api/hotel/rooms:
+    get:
+      tags: [HotelRoom]
+      summary: List all hotel rooms
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Array of hotel rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HotelRoom'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/hotel/rooms/available:
+    get:
+      tags: [HotelRoom]
+      summary: List available rooms in a date range
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: date_start
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: Booking start datetime
+        - in: query
+          name: date_end
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: Booking end datetime
+      responses:
+        '200':
+          description: Array of available hotel rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HotelRoom'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/hotel/bookings:
+    post:
+      tags: [HotelBooking]
+      summary: Create a new hotel booking
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHotelBookingRequest'
+      responses:
+        '201':
+          description: Booking created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/hotel/bookings/my/pending:
+    get:
+      tags: [HotelBooking]
+      summary: List your pending hotel bookings
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Paged list of pending hotel bookings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HotelBookingListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/hotel/bookings/my/active:
+    get:
+      tags: [HotelBooking]
+      summary: List your active hotel bookings
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Paged list of active hotel bookings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HotelBookingListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/hotel/bookings/my/history:
+    get:
+      tags: [HotelBooking]
+      summary: List your past hotel bookings
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Paged list of historical hotel bookings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HotelBookingListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/hotel/bookings/my/{id}/status:
+    put:
+      tags: [HotelBooking]
+      summary: Cancel your hotel booking
+      operationId: cancelOwnHotelBooking
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Booking ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - canceled
       responses:
         '200':
           description: Booking cancelled
@@ -388,42 +608,60 @@ components:
         - name
         - tab_num
       properties:
-        login:    { type: string, example: "john123" }
-        password: { type: string, example: "P@ssw0rd!" }
-        surname:  { type: string }
-        name:     { type: string }
+        login:
+          type: string
+        password:
+          type: string
+        surname:
+          type: string
+        name:
+          type: string
         patronym:
-          type:     string
+          type: string
           nullable: true
-        tab_num:  { type: string }
+        tab_num:
+          type: string
         phone:
-          type:     string
+          type: string
           nullable: true
 
     UserRegistrationResponse:
       type: object
       properties:
-        id:     { type: integer }
-        login:  { type: string }
-        status: { type: string, enum: [pending] }
+        id:
+          type: integer
+        login:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
 
     LoginRequest:
       type: object
-      required: [login, password]
+      required:
+        - login
+        - password
       properties:
-        login:   { type: string }
-        password:{ type: string }
-        device:  { type: string, nullable: true }
+        login:
+          type: string
+        password:
+          type: string
+        device:
+          type: string
+          nullable: true
 
     LoginResponse:
       type: object
       properties:
-        token:{ type: string }
+        token:
+          type: string
 
     LogoutResponse:
       type: object
       properties:
-        message:{ type: string }
+        message:
+          type: string
 
     UserProfileResponse:
       type: object
@@ -431,93 +669,194 @@ components:
         user:
           type: object
           properties:
-            id:     { type: integer }
-            login:  { type: string }
-            surname:{ type: string }
-            name:   { type: string }
+            id:
+              type: integer
+            login:
+              type: string
+            surname:
+              type: string
+            name:
+              type: string
             patronym:
-              type:     string
+              type: string
               nullable: true
             phone:
-              type:     string
+              type: string
               nullable: true
             roles:
               type: array
               items:
                 type: object
                 properties:
-                  id:   { type: integer }
-                  name: { type: string }
+                  id:
+                    type: integer
+                  name:
+                    type: string
             permissions:
               type: array
-              items: { type: string }
+              items:
+                type: string
 
     CarCategory:
       type: object
       properties:
-        id:   { type: integer }
-        name: { type: string }
+        id:
+          type: integer
+        name:
+          type: string
 
     Car:
       type: object
       properties:
-        id:              { type: integer }
-        car_category_id: { type: integer }
-        category_name:   { type: string }
-        model:           { type: string }
-        number:          { type: string }
+        id:
+          type: integer
+        car_category_id:
+          type: integer
+        category_name:
+          type: string
+        model:
+          type: string
+        number:
+          type: string
 
     CreateCarBookingRequest:
       type: object
-      required: [car_id, phone_number, date_start, date_expired]
+      required:
+        - car_id
+        - phone_number
+        - date_start
+        - date_expired
       properties:
-        car_id:       { type: integer }
-        phone_number: { type: string }
+        car_id:
+          type: integer
+        phone_number:
+          type: string
         purpose:
-          type:     string
+          type: string
           nullable: true
         route:
-          type:     string
+          type: string
           nullable: true
         date_start:
-          type:   string
+          type: string
           format: date-time
         date_expired:
-          type:   string
+          type: string
           format: date-time
 
     CarBooking:
       type: object
       properties:
-        id:            { type: integer }
-        car_id:        { type: integer }
-        phone_number:  { type: string }
-        purpose:       { type: string }
-        route:         { type: string }
+        id:
+          type: integer
+        car_id:
+          type: integer
+        phone_number:
+          type: string
+        purpose:
+          type: string
+        route:
+          type: string
         date_start:
-          type:   string
+          type: string
           format: date-time
         date_expired:
-          type:   string
+          type: string
           format: date-time
-        status:        { type: string }
+        status:
+          type: string
         date_creation:
-          type:   string
+          type: string
           format: date-time
-        model:         { type: string }
-        number:        { type: string }
-        category_name: { type: string }
+        model:
+          type: string
+        number:
+          type: string
+        category_name:
+          type: string
 
     CarBookingListResponse:
       type: object
       properties:
-        total: { type: integer }
+        total:
+          type: integer
         rows:
           type: array
           items:
             $ref: '#/components/schemas/CarBooking'
 
+    HotelRoom:
+      type: object
+      properties:
+        id:
+          type: integer
+        num:
+          type: string
+        data_status:
+          type: string
+        date_creation:
+          type: string
+          format: date-time
+
+    CreateHotelBookingRequest:
+      type: object
+      required:
+        - room_id
+        - phone
+        - date_start
+        - date_end
+      properties:
+        room_id:
+          type: integer
+        phone:
+          type: string
+        purpose:
+          type: string
+          nullable: true
+        date_start:
+          type: string
+          format: date-time
+        date_end:
+          type: string
+          format: date-time
+
+    HotelBooking:
+      type: object
+      properties:
+        id:
+          type: integer
+        room_id:
+          type: integer
+        phone:
+          type: string
+        purpose:
+          type: string
+        date_start:
+          type: string
+          format: date-time
+        date_end:
+          type: string
+          format: date-time
+        status:
+          type: string
+        date_creation:
+          type: string
+          format: date-time
+        room_num:
+          type: string
+
+    HotelBookingListResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/HotelBooking'
+
     ErrorResponse:
       type: object
       properties:
-        error: { type: string }
+        error:
+          type: string
