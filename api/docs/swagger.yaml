@@ -24,9 +24,10 @@ tags:
   - name: HotelRoom
     description: View hotel rooms and availability
   - name: HotelBooking
-    description: Create and cancel your own hotel bookings
+    description: Create, cancel, and (admin) approve/reject hotel bookings
 
 paths:
+  # --- Auth ---
   /api/auth/registration:
     post:
       tags: [Auth]
@@ -225,12 +226,10 @@ paths:
           name: page
           schema:
             type: integer
-          description: Page number
         - in: query
           name: limit
           schema:
             type: integer
-          description: Items per page
       responses:
         '200':
           description: Paged list of pending bookings
@@ -301,7 +300,6 @@ paths:
     put:
       tags: [CarBooking]
       summary: Cancel your car booking
-      operationId: cancelOwnCarBooking
       security:
         - BearerAuth: []
       parameters:
@@ -322,8 +320,7 @@ paths:
               properties:
                 status:
                   type: string
-                  enum:
-                    - canceled
+                  enum: [canceled]
       responses:
         '200':
           description: Booking cancelled
@@ -515,7 +512,6 @@ paths:
     put:
       tags: [HotelBooking]
       summary: Cancel your hotel booking
-      operationId: cancelOwnHotelBooking
       security:
         - BearerAuth: []
       parameters:
@@ -536,8 +532,7 @@ paths:
               properties:
                 status:
                   type: string
-                  enum:
-                    - canceled
+                  enum: [canceled]
       responses:
         '200':
           description: Booking cancelled
@@ -634,14 +629,11 @@ components:
           type: string
         status:
           type: string
-          enum:
-            - pending
+          enum: [pending]
 
     LoginRequest:
       type: object
-      required:
-        - login
-        - password
+      required: [login, password]
       properties:
         login:
           type: string
@@ -839,6 +831,9 @@ components:
           format: date-time
         status:
           type: string
+        door_code:
+          type: string
+          nullable: true
         date_creation:
           type: string
           format: date-time
