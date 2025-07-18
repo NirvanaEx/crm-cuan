@@ -4,39 +4,19 @@ const router      = express.Router();
 const ctrl        = require('../../controllers/car/carBookController');
 const checkAccess = require('../../middlewares/checkAccess');
 
-// 1) Pending bookings
-router.get(
-  '/pending',
-  checkAccess('carBook_read'),
-  ctrl.getPending
-);
+// ==== Admin (ALL) ====
+router.get(   '/pending', checkAccess('carBook_read_all'),    ctrl.getPendingAll);
+router.get(   '/active',  checkAccess('carBook_read_all'),    ctrl.getActiveAll);
+router.get(   '/history', checkAccess('carBook_read_all'),    ctrl.getHistoryAll);
+router.put(   '/:id/status', checkAccess('carBook_update_all'), ctrl.changeStatusAll);
 
-// 2) Active bookings
-router.get(
-  '/active',
-  checkAccess('carBook_read'),
-  ctrl.getActive
-);
+// ==== User (OWN) ====
+router.get(   '/my/pending', checkAccess('carBook_read_own'),  ctrl.getPendingOwn);
+router.get(   '/my/active',  checkAccess('carBook_read_own'),  ctrl.getActiveOwn);
+router.get(   '/my/history', checkAccess('carBook_read_own'),  ctrl.getHistoryOwn);
+router.put(   '/my/:id/status', checkAccess('carBook_update_own'), ctrl.changeStatusOwn);
 
-// 3) History (canceled/rejected)
-router.get(
-  '/history',
-  checkAccess('carBook_read'),
-  ctrl.getHistory
-);
-
-// 4) Create new booking
-router.post(
-  '/',
-  checkAccess('carBook_create'),
-  ctrl.create
-);
-
-// 5) Update status
-router.put(
-  '/:id/status',
-  checkAccess('carBook_update'),
-  ctrl.changeStatus
-);
+// ==== Create (shared) ====
+router.post(  '/',            checkAccess('carBook_create'),   ctrl.create);
 
 module.exports = router;

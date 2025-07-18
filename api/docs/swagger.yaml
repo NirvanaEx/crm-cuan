@@ -1,25 +1,31 @@
 openapi: 3.0.3
 info:
-  title: Your API
-  version: "1.0.0"
+  title: Mobile API
+  version: "1.0.2"
   description: |
-    Main API for user registration, authentication, car booking, and other resources.
+    Subset of the main API for mobile clients:
+    registration, auth, viewing cars & categories,
+    and creating/canceling own bookings.
 
 servers:
-  - url: http://localhost:3000
+  - url: http://193.160.119.15:3000
     description: Local development server
 
 tags:
   - name: Auth
-    description: Endpoints for registration and authentication
+    description: Registration and authentication
+  - name: CarCategory
+    description: View car categories
+  - name: Car
+    description: View cars
+  - name: CarBooking
+    description: Create and cancel your own car bookings
 
 paths:
   /api/auth/registration:
     post:
-      tags:
-        - Auth
-      summary: Create a new registration request
-      operationId: createRegistrationRequest
+      tags: [Auth]
+      summary: Request user registration
       requestBody:
         required: true
         content:
@@ -28,30 +34,20 @@ paths:
               $ref: '#/components/schemas/UserRegistrationRequest'
       responses:
         '201':
-          description: Registration request created successfully
+          description: Registration request created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserRegistrationResponse'
         '400':
-          description: Validation failed or bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/BadRequest'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/InternalError'
 
   /api/auth/login:
     post:
-      tags:
-        - Auth
-      summary: User login
-      operationId: loginUser
+      tags: [Auth]
+      summary: Log in and receive token
       requestBody:
         required: true
         content:
@@ -60,91 +56,288 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Successful login
+          description: Bearer token
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
         '400':
-          description: Missing or invalid fields
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Invalid credentials
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/Unauthorized'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/InternalError'
 
   /api/auth/logout:
     post:
-      tags:
-        - Auth
-      summary: User logout
-      operationId: logoutUser
+      tags: [Auth]
+      summary: Log out
       security:
         - BearerAuth: []
       responses:
         '200':
-          description: Successful logout
+          description: Logged out
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/LogoutResponse'
-        '400':
-          description: Bad request or token not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         '401':
-          description: Missing or invalid token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/Unauthorized'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/InternalError'
 
   /api/auth/me:
     get:
-      tags:
-        - Auth
+      tags: [Auth]
       summary: Get current user profile
-      operationId: getCurrentUser
       security:
         - BearerAuth: []
       responses:
         '200':
-          description: Returns authenticated user profile
+          description: User profile
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserProfileResponse'
         '401':
-          description: Missing or invalid token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/Unauthorized'
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalError'
+
+  /api/car-categories:
+    get:
+      tags: [CarCategory]
+      summary: List all car categories
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Array of car categories
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarCategory'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/cars:
+    get:
+      tags: [Car]
+      summary: List all cars
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Array of cars
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Car'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/cars/available:
+    get:
+      tags: [Car]
+      summary: List cars available in a date range
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: date_start
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: Booking start datetime
+        - in: query
+          name: date_expired
+          schema:
+            type: string
+            format: date-time
+          required: true
+          description: Booking end datetime
+      responses:
+        '200':
+          description: Array of available cars
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Car'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/car-bookings:
+    post:
+      tags: [CarBooking]
+      summary: Create a new booking
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCarBookingRequest'
+      responses:
+        '201':
+          description: Booking created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/car-bookings/my/pending:
+    get:
+      tags: [CarBooking]
+      summary: List your pending bookings
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Items per page
+      responses:
+        '200':
+          description: Paged list of pending bookings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarBookingListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/car-bookings/my/active:
+    get:
+      tags: [CarBooking]
+      summary: List your active bookings
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Paged list of active bookings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarBookingListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/car-bookings/my/history:
+    get:
+      tags: [CarBooking]
+      summary: List your past (canceled/rejected/expired) bookings
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Paged list of historical bookings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarBookingListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/car-bookings/my/{id}/status:
+    put:
+      tags: [CarBooking]
+      summary: Cancel your booking
+      operationId: cancelOwnBooking
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Booking ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [canceled]
+                  example: canceled
+      responses:
+        '200':
+          description: Booking cancelled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
 components:
   securitySchemes:
@@ -152,6 +345,38 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Missing or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Forbidden action
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
 
   schemas:
     UserRegistrationRequest:
@@ -163,75 +388,42 @@ components:
         - name
         - tab_num
       properties:
-        login:
-          type: string
-          description: Lowercase login name
-          example: "john123"
-        password:
-          type: string
-          description: Plain-text password, minimum 8 characters
-          example: "P@ssw0rd!"
-        surname:
-          type: string
-          description: User's surname
-        name:
-          type: string
-          description: User's given name
+        login:    { type: string, example: "john123" }
+        password: { type: string, example: "P@ssw0rd!" }
+        surname:  { type: string }
+        name:     { type: string }
         patronym:
-          type: string
+          type:     string
           nullable: true
-          description: Optional patronymic
-        tab_num:
-          type: string
-          description: Alphanumeric staff number
+        tab_num:  { type: string }
         phone:
-          type: string
+          type:     string
           nullable: true
-          description: Optional phone number
 
     UserRegistrationResponse:
       type: object
       properties:
-        id:
-          type: integer
-          description: Registration request identifier
-        login:
-          type: string
-        status:
-          type: string
-          enum:
-            - pending
+        id:     { type: integer }
+        login:  { type: string }
+        status: { type: string, enum: [pending] }
 
     LoginRequest:
       type: object
-      required:
-        - login
-        - password
+      required: [login, password]
       properties:
-        login:
-          type: string
-          description: User login name
-        password:
-          type: string
-          description: Plain-text password
-        device:
-          type: string
-          nullable: true
-          description: Optional device identifier
+        login:   { type: string }
+        password:{ type: string }
+        device:  { type: string, nullable: true }
 
     LoginResponse:
       type: object
       properties:
-        token:
-          type: string
-          description: Bearer token for authenticated requests
+        token:{ type: string }
 
     LogoutResponse:
       type: object
       properties:
-        message:
-          type: string
-          description: Confirmation of logout
+        message:{ type: string }
 
     UserProfileResponse:
       type: object
@@ -239,43 +431,93 @@ components:
         user:
           type: object
           properties:
-            id:
-              type: integer
-            login:
-              type: string
-            date_creation:
-              type: string
-              format: date-time
-            surname:
-              type: string
-            name:
-              type: string
+            id:     { type: integer }
+            login:  { type: string }
+            surname:{ type: string }
+            name:   { type: string }
             patronym:
-              type: string
+              type:     string
               nullable: true
             phone:
-              type: string
+              type:     string
               nullable: true
             roles:
               type: array
               items:
                 type: object
                 properties:
-                  id:
-                    type: integer
-                  name:
-                    type: string
+                  id:   { type: integer }
+                  name: { type: string }
             permissions:
               type: array
-              items:
-                type: string
-            selected_language_id:
-              type: integer
-              nullable: true
+              items: { type: string }
+
+    CarCategory:
+      type: object
+      properties:
+        id:   { type: integer }
+        name: { type: string }
+
+    Car:
+      type: object
+      properties:
+        id:              { type: integer }
+        car_category_id: { type: integer }
+        category_name:   { type: string }
+        model:           { type: string }
+        number:          { type: string }
+
+    CreateCarBookingRequest:
+      type: object
+      required: [car_id, phone_number, date_start, date_expired]
+      properties:
+        car_id:       { type: integer }
+        phone_number: { type: string }
+        purpose:
+          type:     string
+          nullable: true
+        route:
+          type:     string
+          nullable: true
+        date_start:
+          type:   string
+          format: date-time
+        date_expired:
+          type:   string
+          format: date-time
+
+    CarBooking:
+      type: object
+      properties:
+        id:            { type: integer }
+        car_id:        { type: integer }
+        phone_number:  { type: string }
+        purpose:       { type: string }
+        route:         { type: string }
+        date_start:
+          type:   string
+          format: date-time
+        date_expired:
+          type:   string
+          format: date-time
+        status:        { type: string }
+        date_creation:
+          type:   string
+          format: date-time
+        model:         { type: string }
+        number:        { type: string }
+        category_name: { type: string }
+
+    CarBookingListResponse:
+      type: object
+      properties:
+        total: { type: integer }
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/CarBooking'
 
     ErrorResponse:
       type: object
       properties:
-        error:
-          type: string
-          description: Error message
+        error: { type: string }
