@@ -665,6 +665,8 @@ components:
               type: integer
             login:
               type: string
+            tab_num:
+             type: string
             surname:
               type: string
             name:

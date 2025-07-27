@@ -17,7 +17,15 @@ exports.getUserFromToken = async (token) => {
 
     // Получаем данные пользователя (соединяем таблицы user и user_info)
     const [userRows] = await db.execute(
-        `SELECT u.id, u.login, u.date_creation, ui.surname, ui.name, ui.patronym, ui.phone
+        `SELECT 
+            u.id, 
+            u.login, 
+            u.date_creation,
+            ui.surname, 
+            ui.name, 
+            ui.patronym, 
+            ui.phone,
+            ui.tab_num
          FROM \`user\` u
          LEFT JOIN user_info ui ON u.id = ui.user_id
          WHERE u.id = ?`,
