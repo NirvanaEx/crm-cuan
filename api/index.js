@@ -62,6 +62,9 @@ const certificateFieldRoutes    = require('./routes/certificate/certificateField
 const certificateRequestRoutes  = require('./routes/certificate/certificateRequestRoutes');
 const certificateDataRoutes     = require('./routes/certificate/certificateDataRoutes');
 
+const coworkingRoomRoutes = require('./routes/coworking/coworkingRoomRoutes');
+const coworkingBookRoutes = require('./routes/coworking/coworkingBookRoutes');
+
 // Public authentication and registration routes
 app.use('/api/auth/registration', publicRegRoutes);
 app.use('/api/auth',          authRoutes);
@@ -94,6 +97,10 @@ app.use('/api/certificate/fields',   authMiddleware, certificateFieldRoutes);
 app.use('/api/certificate/requests', authMiddleware, certificateRequestRoutes);
 app.use('/api/certificate/data',     authMiddleware, certificateDataRoutes);
 app.use('/api/certificate',          authMiddleware, certificateRoutes);
+
+// Protected coworking routes
+app.use('/api/coworking', authMiddleware, coworkingRoomRoutes);
+app.use('/api/coworking/bookings', authMiddleware, coworkingBookRoutes);
 
 
 // Load and apply global error handler
