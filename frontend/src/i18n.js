@@ -19,6 +19,7 @@ const resources = {
       CAR_SECTION:         "Cars",
       HOTEL_SECTION:       "Hotel",
       CERTIFICATE_SECTION: "Certificates",
+      COWORKING_SECTION:   "Coworking",
 
       CAR_BOOKINGS:         "Bookings",
       CAR_CATEGORIES:       "Categories",
@@ -31,6 +32,9 @@ const resources = {
       CERTIFICATES:         "Certificates",
       CERTIFICATE_FIELDS:   "Fields",
       CERTIFICATE_REQUESTS: "Requests",
+
+      COWORKING_ROOMS:     "Rooms",
+      COWORKING_BOOKINGS:  "Bookings",
 
       DARK_MODE:   "Dark Mode",
       LIGHT_MODE:  "Light Mode",
@@ -53,6 +57,7 @@ const resources = {
       CAR_SECTION:         "Автомобили",
       HOTEL_SECTION:       "Отели",
       CERTIFICATE_SECTION: "Справки",
+      COWORKING_SECTION:   "Коворкинг", 
 
       CAR_BOOKINGS:         "Бронирования",
       CAR_CATEGORIES:       "Категории авто",
@@ -65,6 +70,9 @@ const resources = {
       CERTIFICATES:         "Справки",
       CERTIFICATE_FIELDS:   "Поля справок",
       CERTIFICATE_REQUESTS: "Запросы",
+
+      COWORKING_ROOMS:     "Комнаты",
+      COWORKING_BOOKINGS:  "Бронирования",
 
       DARK_MODE:   "Тёмный режим",
       LIGHT_MODE:  "Светлый режим",

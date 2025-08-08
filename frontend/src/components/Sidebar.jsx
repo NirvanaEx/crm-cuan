@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   FaCog, FaSignOutAlt, FaMoon, FaSun, FaLanguage,
   FaUsers, FaUserShield, FaKey, FaClock, FaFileAlt,
-  FaFileContract, FaLayerGroup, FaCar, FaUserPlus, FaBed, FaCertificate
+  FaFileContract, FaLayerGroup, FaCar, FaUserPlus, FaBed, FaCertificate,FaDesktop
 } from 'react-icons/fa';
 import { ThemeContext } from '../context/ThemeContext';
 import { AuthContext }  from '../context/AuthContext';
@@ -52,12 +52,19 @@ export default function Sidebar({ isOpen }) {
     { name: t('sidebar:CERTIFICATE_REQUESTS'),icon: <FaFileContract/>,path: '/certificate-requests', required: 'certificateRequest_read' }
   ];
 
+  const coworkingItems = [
+  { name: t('sidebar:COWORKING_ROOMS'),    icon: <FaDesktop/>,          path: '/coworking/rooms',    required: 'coworkingRoom_pageView' },
+  { name: t('sidebar:COWORKING_BOOKINGS'), icon: <FaFileContract/>, path: '/coworking/bookings', required: 'coworkingBook_pageView' }
+];
+
   const settingsItem = { name: t('common:SETTINGS'), icon: <FaCog/>, path: '/settings' };
 
   const adminAllowed       = byPerm(adminItems);
   const carAllowed         = byPerm(carItems);
   const hotelAllowed       = byPerm(hotelItems);
   const certificateAllowed = byPerm(certificateItems);
+  const coworkingAllowed = byPerm(coworkingItems);
+
 
   // Updates activePath when route changes
   useEffect(() => {
@@ -109,6 +116,7 @@ export default function Sidebar({ isOpen }) {
         {renderSection(t('sidebar:CAR_SECTION'), carAllowed)}
         {renderSection(t('sidebar:HOTEL_SECTION'), hotelAllowed)}
         {renderSection(t('sidebar:CERTIFICATE_SECTION'), certificateAllowed)}
+        {renderSection(t('sidebar:COWORKING_SECTION'), coworkingAllowed)}
       </div>
       <ul className="sidebar-menu sidebar-bottom">
         <li className={activePath === settingsItem.path ? 'active' : ''}>

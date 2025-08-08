@@ -29,6 +29,9 @@ import Certificates         from './pages/certificate/Certificates';
 import CertificateFields    from './pages/certificate/CertificateFields';
 import CertificateRequests  from './pages/certificate/CertificateRequests';
 
+import CoworkingRooms from './pages/coworking/CoworkingRooms';
+import CoworkingBookings from './pages/coworking/CoworkingBookings';
+
 function App() {
   const [progress, setProgress] = useState(0);
   const { theme } = useContext(ThemeContext);
@@ -77,6 +80,10 @@ function App() {
           <Route path="certificates"        element={<ProtectedRoute allowedPermissions={['certificate_read']}><Certificates/></ProtectedRoute>} />
           <Route path="certificate-fields"  element={<ProtectedRoute allowedPermissions={['certificateField_read']}><CertificateFields/></ProtectedRoute>} />
           <Route path="certificate-requests"element={<ProtectedRoute allowedPermissions={['certificateRequest_read']}><CertificateRequests/></ProtectedRoute>} />
+
+          <Route path="coworking/rooms"    element={<ProtectedRoute allowedPermissions={['coworkingRoom_pageView']}><CoworkingRooms/></ProtectedRoute>} />
+          <Route path="coworking/bookings" element={<ProtectedRoute allowedPermissions={['coworkingBook_pageView']}><CoworkingBookings/></ProtectedRoute>} />
+
 
           <Route path="*" element={<NotFound/>} />
         </Route>
